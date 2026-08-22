@@ -1,0 +1,82 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum SourceType {
+  NEWS
+  GOVERNMENT
+  MUNICIPAL
+  TRAFFIC
+  WEATHER
+  SOCIAL
+  CITIZEN
+}
+
+model Source {
+  id            String     @id @default(cuid())
+  name          String     @unique
+  slug          String     @unique
+  type          SourceType
+  feedUrl       String
+  isActive      Boolean    @default(true)
+  lastFetchedAt DateTime?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  rawArticles RawArticle[]
+  articles    Article[]
+}
+
+model RawArticle {
+  id              String    @id @default(cuid())
+  sourceId        String
+  source          Source    @relation(fields: [sourceId], references: [id])
+  externalId      String
+  payload         Json
+  fetchedAt       DateTime  @default(now())
+  processed       Boolean   @default(false)
+  processedAt     DateTime?
+  processingError String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  article Article?
+
+  @@unique([sourceId, externalId])
+  @@index([processed])
+  @@index([sourceId, fetchedAt])
+}
+
+model Article {
+  id           String     @id @default(cuid())
+  rawArticleId String     @unique
+  rawArticle   RawArticle @relation(fields: [rawArticleId], references: [id])
+  sourceId     String
+  source       Source     @relation(fields: [sourceId], references: [id])
+
+  title       String
+  summary     String?
+  url         String
+  imageUrl    String?
+  language    String    @default("en")
+  publishedAt DateTime?
+  fetchedAt   DateTime  @default(now())
+
+  // Phase 2+ fields
+  category   String?
+  entities   Json?
+  urgency    String?
+  confidence Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([publishedAt])
+  @@index([sourceId])
+}
