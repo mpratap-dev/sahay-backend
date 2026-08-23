@@ -8,6 +8,8 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/Source.js'
+export type * from './models/SourceFeed.js'
+export type * from './models/NewsCategory.js'
 export type * from './models/RawArticle.js'
 export type * from './models/Article.js'
 export type * from './commonInputTypes.js'

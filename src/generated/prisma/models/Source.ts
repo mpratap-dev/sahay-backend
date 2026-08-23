@@ -19,8 +19,18 @@ export type SourceModel = runtime.Types.Result.DefaultSelection<Prisma.$SourcePa
 
 export type AggregateSource = {
   _count: SourceCountAggregateOutputType | null
+  _avg: SourceAvgAggregateOutputType | null
+  _sum: SourceSumAggregateOutputType | null
   _min: SourceMinAggregateOutputType | null
   _max: SourceMaxAggregateOutputType | null
+}
+
+export type SourceAvgAggregateOutputType = {
+  trustTier: number | null
+}
+
+export type SourceSumAggregateOutputType = {
+  trustTier: number | null
 }
 
 export type SourceMinAggregateOutputType = {
@@ -28,9 +38,9 @@ export type SourceMinAggregateOutputType = {
   name: string | null
   slug: string | null
   type: $Enums.SourceType | null
-  feedUrl: string | null
+  homepageUrl: string | null
+  trustTier: number | null
   isActive: boolean | null
-  lastFetchedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -40,9 +50,9 @@ export type SourceMaxAggregateOutputType = {
   name: string | null
   slug: string | null
   type: $Enums.SourceType | null
-  feedUrl: string | null
+  homepageUrl: string | null
+  trustTier: number | null
   isActive: boolean | null
-  lastFetchedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -52,23 +62,31 @@ export type SourceCountAggregateOutputType = {
   name: number
   slug: number
   type: number
-  feedUrl: number
+  homepageUrl: number
+  trustTier: number
   isActive: number
-  lastFetchedAt: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
 
+export type SourceAvgAggregateInputType = {
+  trustTier?: true
+}
+
+export type SourceSumAggregateInputType = {
+  trustTier?: true
+}
+
 export type SourceMinAggregateInputType = {
   id?: true
   name?: true
   slug?: true
   type?: true
-  feedUrl?: true
+  homepageUrl?: true
+  trustTier?: true
   isActive?: true
-  lastFetchedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -78,9 +96,9 @@ export type SourceMaxAggregateInputType = {
   name?: true
   slug?: true
   type?: true
-  feedUrl?: true
+  homepageUrl?: true
+  trustTier?: true
   isActive?: true
-  lastFetchedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -90,9 +108,9 @@ export type SourceCountAggregateInputType = {
   name?: true
   slug?: true
   type?: true
-  feedUrl?: true
+  homepageUrl?: true
+  trustTier?: true
   isActive?: true
-  lastFetchedAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -136,6 +154,18 @@ export type SourceAggregateArgs<ExtArgs extends runtime.Types.Extensions.Interna
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: SourceAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: SourceSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: SourceMinAggregateInputType
@@ -166,6 +196,8 @@ export type SourceGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   _count?: SourceCountAggregateInputType | true
+  _avg?: SourceAvgAggregateInputType
+  _sum?: SourceSumAggregateInputType
   _min?: SourceMinAggregateInputType
   _max?: SourceMaxAggregateInputType
 }
@@ -175,12 +207,14 @@ export type SourceGroupByOutputType = {
   name: string
   slug: string
   type: $Enums.SourceType
-  feedUrl: string
+  homepageUrl: string
+  trustTier: number
   isActive: boolean
-  lastFetchedAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: SourceCountAggregateOutputType | null
+  _avg: SourceAvgAggregateOutputType | null
+  _sum: SourceSumAggregateOutputType | null
   _min: SourceMinAggregateOutputType | null
   _max: SourceMaxAggregateOutputType | null
 }
@@ -208,12 +242,12 @@ export type SourceWhereInput = {
   name?: Prisma.StringFilter<"Source"> | string
   slug?: Prisma.StringFilter<"Source"> | string
   type?: Prisma.EnumSourceTypeFilter<"Source"> | $Enums.SourceType
-  feedUrl?: Prisma.StringFilter<"Source"> | string
+  homepageUrl?: Prisma.StringFilter<"Source"> | string
+  trustTier?: Prisma.IntFilter<"Source"> | number
   isActive?: Prisma.BoolFilter<"Source"> | boolean
-  lastFetchedAt?: Prisma.DateTimeNullableFilter<"Source"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Source"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Source"> | Date | string
-  rawArticles?: Prisma.RawArticleListRelationFilter
+  feeds?: Prisma.SourceFeedListRelationFilter
   articles?: Prisma.ArticleListRelationFilter
 }
 
@@ -222,12 +256,12 @@ export type SourceOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  feedUrl?: Prisma.SortOrder
+  homepageUrl?: Prisma.SortOrder
+  trustTier?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
-  lastFetchedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  rawArticles?: Prisma.RawArticleOrderByRelationAggregateInput
+  feeds?: Prisma.SourceFeedOrderByRelationAggregateInput
   articles?: Prisma.ArticleOrderByRelationAggregateInput
 }
 
@@ -239,12 +273,12 @@ export type SourceWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.SourceWhereInput[]
   NOT?: Prisma.SourceWhereInput | Prisma.SourceWhereInput[]
   type?: Prisma.EnumSourceTypeFilter<"Source"> | $Enums.SourceType
-  feedUrl?: Prisma.StringFilter<"Source"> | string
+  homepageUrl?: Prisma.StringFilter<"Source"> | string
+  trustTier?: Prisma.IntFilter<"Source"> | number
   isActive?: Prisma.BoolFilter<"Source"> | boolean
-  lastFetchedAt?: Prisma.DateTimeNullableFilter<"Source"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Source"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Source"> | Date | string
-  rawArticles?: Prisma.RawArticleListRelationFilter
+  feeds?: Prisma.SourceFeedListRelationFilter
   articles?: Prisma.ArticleListRelationFilter
 }, "id" | "name" | "slug">
 
@@ -253,14 +287,16 @@ export type SourceOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  feedUrl?: Prisma.SortOrder
+  homepageUrl?: Prisma.SortOrder
+  trustTier?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
-  lastFetchedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.SourceCountOrderByAggregateInput
+  _avg?: Prisma.SourceAvgOrderByAggregateInput
   _max?: Prisma.SourceMaxOrderByAggregateInput
   _min?: Prisma.SourceMinOrderByAggregateInput
+  _sum?: Prisma.SourceSumOrderByAggregateInput
 }
 
 export type SourceScalarWhereWithAggregatesInput = {
@@ -271,9 +307,9 @@ export type SourceScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"Source"> | string
   slug?: Prisma.StringWithAggregatesFilter<"Source"> | string
   type?: Prisma.EnumSourceTypeWithAggregatesFilter<"Source"> | $Enums.SourceType
-  feedUrl?: Prisma.StringWithAggregatesFilter<"Source"> | string
+  homepageUrl?: Prisma.StringWithAggregatesFilter<"Source"> | string
+  trustTier?: Prisma.IntWithAggregatesFilter<"Source"> | number
   isActive?: Prisma.BoolWithAggregatesFilter<"Source"> | boolean
-  lastFetchedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Source"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Source"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Source"> | Date | string
 }
@@ -283,12 +319,12 @@ export type SourceCreateInput = {
   name: string
   slug: string
   type: $Enums.SourceType
-  feedUrl: string
+  homepageUrl: string
+  trustTier?: number
   isActive?: boolean
-  lastFetchedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  rawArticles?: Prisma.RawArticleCreateNestedManyWithoutSourceInput
+  feeds?: Prisma.SourceFeedCreateNestedManyWithoutSourceInput
   articles?: Prisma.ArticleCreateNestedManyWithoutSourceInput
 }
 
@@ -297,12 +333,12 @@ export type SourceUncheckedCreateInput = {
   name: string
   slug: string
   type: $Enums.SourceType
-  feedUrl: string
+  homepageUrl: string
+  trustTier?: number
   isActive?: boolean
-  lastFetchedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  rawArticles?: Prisma.RawArticleUncheckedCreateNestedManyWithoutSourceInput
+  feeds?: Prisma.SourceFeedUncheckedCreateNestedManyWithoutSourceInput
   articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutSourceInput
 }
 
@@ -311,12 +347,12 @@ export type SourceUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumSourceTypeFieldUpdateOperationsInput | $Enums.SourceType
-  feedUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  homepageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  trustTier?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  lastFetchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  rawArticles?: Prisma.RawArticleUpdateManyWithoutSourceNestedInput
+  feeds?: Prisma.SourceFeedUpdateManyWithoutSourceNestedInput
   articles?: Prisma.ArticleUpdateManyWithoutSourceNestedInput
 }
 
@@ -325,12 +361,12 @@ export type SourceUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumSourceTypeFieldUpdateOperationsInput | $Enums.SourceType
-  feedUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  homepageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  trustTier?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  lastFetchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  rawArticles?: Prisma.RawArticleUncheckedUpdateManyWithoutSourceNestedInput
+  feeds?: Prisma.SourceFeedUncheckedUpdateManyWithoutSourceNestedInput
   articles?: Prisma.ArticleUncheckedUpdateManyWithoutSourceNestedInput
 }
 
@@ -339,9 +375,9 @@ export type SourceCreateManyInput = {
   name: string
   slug: string
   type: $Enums.SourceType
-  feedUrl: string
+  homepageUrl: string
+  trustTier?: number
   isActive?: boolean
-  lastFetchedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -351,9 +387,9 @@ export type SourceUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumSourceTypeFieldUpdateOperationsInput | $Enums.SourceType
-  feedUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  homepageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  trustTier?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  lastFetchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -363,9 +399,9 @@ export type SourceUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumSourceTypeFieldUpdateOperationsInput | $Enums.SourceType
-  feedUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  homepageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  trustTier?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  lastFetchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -375,11 +411,15 @@ export type SourceCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  feedUrl?: Prisma.SortOrder
+  homepageUrl?: Prisma.SortOrder
+  trustTier?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
-  lastFetchedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type SourceAvgOrderByAggregateInput = {
+  trustTier?: Prisma.SortOrder
 }
 
 export type SourceMaxOrderByAggregateInput = {
@@ -387,9 +427,9 @@ export type SourceMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  feedUrl?: Prisma.SortOrder
+  homepageUrl?: Prisma.SortOrder
+  trustTier?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
-  lastFetchedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -399,11 +439,15 @@ export type SourceMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  feedUrl?: Prisma.SortOrder
+  homepageUrl?: Prisma.SortOrder
+  trustTier?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
-  lastFetchedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type SourceSumOrderByAggregateInput = {
+  trustTier?: Prisma.SortOrder
 }
 
 export type SourceScalarRelationFilter = {
@@ -419,30 +463,34 @@ export type EnumSourceTypeFieldUpdateOperationsInput = {
   set?: $Enums.SourceType
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
 }
 
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
 }
 
-export type SourceCreateNestedOneWithoutRawArticlesInput = {
-  create?: Prisma.XOR<Prisma.SourceCreateWithoutRawArticlesInput, Prisma.SourceUncheckedCreateWithoutRawArticlesInput>
-  connectOrCreate?: Prisma.SourceCreateOrConnectWithoutRawArticlesInput
+export type SourceCreateNestedOneWithoutFeedsInput = {
+  create?: Prisma.XOR<Prisma.SourceCreateWithoutFeedsInput, Prisma.SourceUncheckedCreateWithoutFeedsInput>
+  connectOrCreate?: Prisma.SourceCreateOrConnectWithoutFeedsInput
   connect?: Prisma.SourceWhereUniqueInput
 }
 
-export type SourceUpdateOneRequiredWithoutRawArticlesNestedInput = {
-  create?: Prisma.XOR<Prisma.SourceCreateWithoutRawArticlesInput, Prisma.SourceUncheckedCreateWithoutRawArticlesInput>
-  connectOrCreate?: Prisma.SourceCreateOrConnectWithoutRawArticlesInput
-  upsert?: Prisma.SourceUpsertWithoutRawArticlesInput
+export type SourceUpdateOneRequiredWithoutFeedsNestedInput = {
+  create?: Prisma.XOR<Prisma.SourceCreateWithoutFeedsInput, Prisma.SourceUncheckedCreateWithoutFeedsInput>
+  connectOrCreate?: Prisma.SourceCreateOrConnectWithoutFeedsInput
+  upsert?: Prisma.SourceUpsertWithoutFeedsInput
   connect?: Prisma.SourceWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.SourceUpdateToOneWithWhereWithoutRawArticlesInput, Prisma.SourceUpdateWithoutRawArticlesInput>, Prisma.SourceUncheckedUpdateWithoutRawArticlesInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SourceUpdateToOneWithWhereWithoutFeedsInput, Prisma.SourceUpdateWithoutFeedsInput>, Prisma.SourceUncheckedUpdateWithoutFeedsInput>
 }
 
 export type SourceCreateNestedOneWithoutArticlesInput = {
@@ -459,69 +507,69 @@ export type SourceUpdateOneRequiredWithoutArticlesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.SourceUpdateToOneWithWhereWithoutArticlesInput, Prisma.SourceUpdateWithoutArticlesInput>, Prisma.SourceUncheckedUpdateWithoutArticlesInput>
 }
 
-export type SourceCreateWithoutRawArticlesInput = {
+export type SourceCreateWithoutFeedsInput = {
   id?: string
   name: string
   slug: string
   type: $Enums.SourceType
-  feedUrl: string
+  homepageUrl: string
+  trustTier?: number
   isActive?: boolean
-  lastFetchedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   articles?: Prisma.ArticleCreateNestedManyWithoutSourceInput
 }
 
-export type SourceUncheckedCreateWithoutRawArticlesInput = {
+export type SourceUncheckedCreateWithoutFeedsInput = {
   id?: string
   name: string
   slug: string
   type: $Enums.SourceType
-  feedUrl: string
+  homepageUrl: string
+  trustTier?: number
   isActive?: boolean
-  lastFetchedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutSourceInput
 }
 
-export type SourceCreateOrConnectWithoutRawArticlesInput = {
+export type SourceCreateOrConnectWithoutFeedsInput = {
   where: Prisma.SourceWhereUniqueInput
-  create: Prisma.XOR<Prisma.SourceCreateWithoutRawArticlesInput, Prisma.SourceUncheckedCreateWithoutRawArticlesInput>
+  create: Prisma.XOR<Prisma.SourceCreateWithoutFeedsInput, Prisma.SourceUncheckedCreateWithoutFeedsInput>
 }
 
-export type SourceUpsertWithoutRawArticlesInput = {
-  update: Prisma.XOR<Prisma.SourceUpdateWithoutRawArticlesInput, Prisma.SourceUncheckedUpdateWithoutRawArticlesInput>
-  create: Prisma.XOR<Prisma.SourceCreateWithoutRawArticlesInput, Prisma.SourceUncheckedCreateWithoutRawArticlesInput>
+export type SourceUpsertWithoutFeedsInput = {
+  update: Prisma.XOR<Prisma.SourceUpdateWithoutFeedsInput, Prisma.SourceUncheckedUpdateWithoutFeedsInput>
+  create: Prisma.XOR<Prisma.SourceCreateWithoutFeedsInput, Prisma.SourceUncheckedCreateWithoutFeedsInput>
   where?: Prisma.SourceWhereInput
 }
 
-export type SourceUpdateToOneWithWhereWithoutRawArticlesInput = {
+export type SourceUpdateToOneWithWhereWithoutFeedsInput = {
   where?: Prisma.SourceWhereInput
-  data: Prisma.XOR<Prisma.SourceUpdateWithoutRawArticlesInput, Prisma.SourceUncheckedUpdateWithoutRawArticlesInput>
+  data: Prisma.XOR<Prisma.SourceUpdateWithoutFeedsInput, Prisma.SourceUncheckedUpdateWithoutFeedsInput>
 }
 
-export type SourceUpdateWithoutRawArticlesInput = {
+export type SourceUpdateWithoutFeedsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumSourceTypeFieldUpdateOperationsInput | $Enums.SourceType
-  feedUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  homepageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  trustTier?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  lastFetchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   articles?: Prisma.ArticleUpdateManyWithoutSourceNestedInput
 }
 
-export type SourceUncheckedUpdateWithoutRawArticlesInput = {
+export type SourceUncheckedUpdateWithoutFeedsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumSourceTypeFieldUpdateOperationsInput | $Enums.SourceType
-  feedUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  homepageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  trustTier?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  lastFetchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   articles?: Prisma.ArticleUncheckedUpdateManyWithoutSourceNestedInput
@@ -532,12 +580,12 @@ export type SourceCreateWithoutArticlesInput = {
   name: string
   slug: string
   type: $Enums.SourceType
-  feedUrl: string
+  homepageUrl: string
+  trustTier?: number
   isActive?: boolean
-  lastFetchedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  rawArticles?: Prisma.RawArticleCreateNestedManyWithoutSourceInput
+  feeds?: Prisma.SourceFeedCreateNestedManyWithoutSourceInput
 }
 
 export type SourceUncheckedCreateWithoutArticlesInput = {
@@ -545,12 +593,12 @@ export type SourceUncheckedCreateWithoutArticlesInput = {
   name: string
   slug: string
   type: $Enums.SourceType
-  feedUrl: string
+  homepageUrl: string
+  trustTier?: number
   isActive?: boolean
-  lastFetchedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  rawArticles?: Prisma.RawArticleUncheckedCreateNestedManyWithoutSourceInput
+  feeds?: Prisma.SourceFeedUncheckedCreateNestedManyWithoutSourceInput
 }
 
 export type SourceCreateOrConnectWithoutArticlesInput = {
@@ -574,12 +622,12 @@ export type SourceUpdateWithoutArticlesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumSourceTypeFieldUpdateOperationsInput | $Enums.SourceType
-  feedUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  homepageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  trustTier?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  lastFetchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  rawArticles?: Prisma.RawArticleUpdateManyWithoutSourceNestedInput
+  feeds?: Prisma.SourceFeedUpdateManyWithoutSourceNestedInput
 }
 
 export type SourceUncheckedUpdateWithoutArticlesInput = {
@@ -587,12 +635,12 @@ export type SourceUncheckedUpdateWithoutArticlesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumSourceTypeFieldUpdateOperationsInput | $Enums.SourceType
-  feedUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  homepageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  trustTier?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  lastFetchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  rawArticles?: Prisma.RawArticleUncheckedUpdateManyWithoutSourceNestedInput
+  feeds?: Prisma.SourceFeedUncheckedUpdateManyWithoutSourceNestedInput
 }
 
 
@@ -601,12 +649,12 @@ export type SourceUncheckedUpdateWithoutArticlesInput = {
  */
 
 export type SourceCountOutputType = {
-  rawArticles: number
+  feeds: number
   articles: number
 }
 
 export type SourceCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  rawArticles?: boolean | SourceCountOutputTypeCountRawArticlesArgs
+  feeds?: boolean | SourceCountOutputTypeCountFeedsArgs
   articles?: boolean | SourceCountOutputTypeCountArticlesArgs
 }
 
@@ -623,8 +671,8 @@ export type SourceCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Exten
 /**
  * SourceCountOutputType without action
  */
-export type SourceCountOutputTypeCountRawArticlesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.RawArticleWhereInput
+export type SourceCountOutputTypeCountFeedsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SourceFeedWhereInput
 }
 
 /**
@@ -640,12 +688,12 @@ export type SourceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   name?: boolean
   slug?: boolean
   type?: boolean
-  feedUrl?: boolean
+  homepageUrl?: boolean
+  trustTier?: boolean
   isActive?: boolean
-  lastFetchedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  rawArticles?: boolean | Prisma.Source$rawArticlesArgs<ExtArgs>
+  feeds?: boolean | Prisma.Source$feedsArgs<ExtArgs>
   articles?: boolean | Prisma.Source$articlesArgs<ExtArgs>
   _count?: boolean | Prisma.SourceCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["source"]>
@@ -655,9 +703,9 @@ export type SourceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   name?: boolean
   slug?: boolean
   type?: boolean
-  feedUrl?: boolean
+  homepageUrl?: boolean
+  trustTier?: boolean
   isActive?: boolean
-  lastFetchedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["source"]>
@@ -667,9 +715,9 @@ export type SourceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   name?: boolean
   slug?: boolean
   type?: boolean
-  feedUrl?: boolean
+  homepageUrl?: boolean
+  trustTier?: boolean
   isActive?: boolean
-  lastFetchedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["source"]>
@@ -679,16 +727,16 @@ export type SourceSelectScalar = {
   name?: boolean
   slug?: boolean
   type?: boolean
-  feedUrl?: boolean
+  homepageUrl?: boolean
+  trustTier?: boolean
   isActive?: boolean
-  lastFetchedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type SourceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "type" | "feedUrl" | "isActive" | "lastFetchedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["source"]>
+export type SourceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "type" | "homepageUrl" | "trustTier" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["source"]>
 export type SourceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  rawArticles?: boolean | Prisma.Source$rawArticlesArgs<ExtArgs>
+  feeds?: boolean | Prisma.Source$feedsArgs<ExtArgs>
   articles?: boolean | Prisma.Source$articlesArgs<ExtArgs>
   _count?: boolean | Prisma.SourceCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -698,7 +746,7 @@ export type SourceIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
 export type $SourcePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Source"
   objects: {
-    rawArticles: Prisma.$RawArticlePayload<ExtArgs>[]
+    feeds: Prisma.$SourceFeedPayload<ExtArgs>[]
     articles: Prisma.$ArticlePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -706,9 +754,9 @@ export type $SourcePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     name: string
     slug: string
     type: $Enums.SourceType
-    feedUrl: string
+    homepageUrl: string
+    trustTier: number
     isActive: boolean
-    lastFetchedAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["source"]>
@@ -1105,7 +1153,7 @@ readonly fields: SourceFieldRefs;
  */
 export interface Prisma__SourceClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  rawArticles<T extends Prisma.Source$rawArticlesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Source$rawArticlesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RawArticlePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  feeds<T extends Prisma.Source$feedsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Source$feedsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SourceFeedPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   articles<T extends Prisma.Source$articlesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Source$articlesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArticlePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1140,9 +1188,9 @@ export interface SourceFieldRefs {
   readonly name: Prisma.FieldRef<"Source", 'String'>
   readonly slug: Prisma.FieldRef<"Source", 'String'>
   readonly type: Prisma.FieldRef<"Source", 'SourceType'>
-  readonly feedUrl: Prisma.FieldRef<"Source", 'String'>
+  readonly homepageUrl: Prisma.FieldRef<"Source", 'String'>
+  readonly trustTier: Prisma.FieldRef<"Source", 'Int'>
   readonly isActive: Prisma.FieldRef<"Source", 'Boolean'>
-  readonly lastFetchedAt: Prisma.FieldRef<"Source", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Source", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Source", 'DateTime'>
 }
@@ -1538,27 +1586,27 @@ export type SourceDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
 }
 
 /**
- * Source.rawArticles
+ * Source.feeds
  */
-export type Source$rawArticlesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Source$feedsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the RawArticle
+   * Select specific fields to fetch from the SourceFeed
    */
-  select?: Prisma.RawArticleSelect<ExtArgs> | null
+  select?: Prisma.SourceFeedSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the RawArticle
+   * Omit specific fields from the SourceFeed
    */
-  omit?: Prisma.RawArticleOmit<ExtArgs> | null
+  omit?: Prisma.SourceFeedOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.RawArticleInclude<ExtArgs> | null
-  where?: Prisma.RawArticleWhereInput
-  orderBy?: Prisma.RawArticleOrderByWithRelationInput | Prisma.RawArticleOrderByWithRelationInput[]
-  cursor?: Prisma.RawArticleWhereUniqueInput
+  include?: Prisma.SourceFeedInclude<ExtArgs> | null
+  where?: Prisma.SourceFeedWhereInput
+  orderBy?: Prisma.SourceFeedOrderByWithRelationInput | Prisma.SourceFeedOrderByWithRelationInput[]
+  cursor?: Prisma.SourceFeedWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.RawArticleScalarFieldEnum | Prisma.RawArticleScalarFieldEnum[]
+  distinct?: Prisma.SourceFeedScalarFieldEnum | Prisma.SourceFeedScalarFieldEnum[]
 }
 
 /**

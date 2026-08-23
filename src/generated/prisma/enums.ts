@@ -19,3 +19,13 @@ export const SourceType = {
 } as const
 
 export type SourceType = (typeof SourceType)[keyof typeof SourceType]
+
+
+export const IngestMethod = {
+  RSS: 'RSS',
+  API: 'API',
+  WEBHOOK: 'WEBHOOK',
+  SCRAPE: 'SCRAPE'
+} as const
+
+export type IngestMethod = (typeof IngestMethod)[keyof typeof IngestMethod]

@@ -4,24 +4,42 @@ import { createPrismaClient } from '../src/prisma/create-prisma-pg-adapter';
 
 const prisma = createPrismaClient(process.env.DATABASE_URL!);
 
+const HINDU_FEED_URL =
+  'https://www.thehindu.com/news/cities/Delhi/feeder/default.rss';
+
 async function main() {
-  await prisma.source.upsert({
+  const source = await prisma.source.upsert({
     where: {
       slug: 'the-hindu-delhi',
     },
     update: {
-      feedUrl: 'https://www.thehindu.com/news/cities/Delhi/feeder/default.rss',
+      homepageUrl: 'https://www.thehindu.com',
+      trustTier: 2,
       isActive: true,
     },
     create: {
       name: 'The Hindu - Delhi',
       slug: 'the-hindu-delhi',
       type: SourceType.NEWS,
-      feedUrl: 'https://www.thehindu.com/news/cities/Delhi/feeder/default.rss',
+      homepageUrl: 'https://www.thehindu.com',
+      trustTier: 2,
     },
   });
 
-  console.log('Seeded The Hindu - Delhi source');
+  await prisma.sourceFeed.upsert({
+    where: { url: HINDU_FEED_URL },
+    update: {
+      isActive: true,
+      sourceId: source.id,
+    },
+    create: {
+      sourceId: source.id,
+      url: HINDU_FEED_URL,
+      language: 'en',
+    },
+  });
+
+  console.log('Seeded The Hindu - Delhi source and feed');
 }
 
 main()

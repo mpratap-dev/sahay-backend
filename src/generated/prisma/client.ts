@@ -44,6 +44,16 @@ export { Prisma }
  */
 export type Source = Prisma.SourceModel
 /**
+ * Model SourceFeed
+ * 
+ */
+export type SourceFeed = Prisma.SourceFeedModel
+/**
+ * Model NewsCategory
+ * 
+ */
+export type NewsCategory = Prisma.NewsCategoryModel
+/**
  * Model RawArticle
  * 
  */

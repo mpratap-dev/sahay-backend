@@ -7,7 +7,7 @@ export class FetcherRegistry {
   constructor(private readonly rssFetcher: RssFetcher) {}
 
   getFetcherForSource(): SourceFetcher {
-    // Phase 1: all sources use RSS transport via feedUrl
+    // Phase 1: all sources use RSS transport via SourceFeed.url
     return this.rssFetcher;
   }
 }

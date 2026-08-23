@@ -44,7 +44,7 @@ export type ArticleMinAggregateOutputType = {
   language: string | null
   publishedAt: Date | null
   fetchedAt: Date | null
-  category: string | null
+  categoryId: string | null
   urgency: string | null
   confidence: number | null
   createdAt: Date | null
@@ -62,7 +62,7 @@ export type ArticleMaxAggregateOutputType = {
   language: string | null
   publishedAt: Date | null
   fetchedAt: Date | null
-  category: string | null
+  categoryId: string | null
   urgency: string | null
   confidence: number | null
   createdAt: Date | null
@@ -80,7 +80,7 @@ export type ArticleCountAggregateOutputType = {
   language: number
   publishedAt: number
   fetchedAt: number
-  category: number
+  categoryId: number
   entities: number
   urgency: number
   confidence: number
@@ -109,7 +109,7 @@ export type ArticleMinAggregateInputType = {
   language?: true
   publishedAt?: true
   fetchedAt?: true
-  category?: true
+  categoryId?: true
   urgency?: true
   confidence?: true
   createdAt?: true
@@ -127,7 +127,7 @@ export type ArticleMaxAggregateInputType = {
   language?: true
   publishedAt?: true
   fetchedAt?: true
-  category?: true
+  categoryId?: true
   urgency?: true
   confidence?: true
   createdAt?: true
@@ -145,7 +145,7 @@ export type ArticleCountAggregateInputType = {
   language?: true
   publishedAt?: true
   fetchedAt?: true
-  category?: true
+  categoryId?: true
   entities?: true
   urgency?: true
   confidence?: true
@@ -251,7 +251,7 @@ export type ArticleGroupByOutputType = {
   language: string
   publishedAt: Date | null
   fetchedAt: Date
-  category: string | null
+  categoryId: string | null
   entities: runtime.JsonValue | null
   urgency: string | null
   confidence: number | null
@@ -293,7 +293,7 @@ export type ArticleWhereInput = {
   language?: Prisma.StringFilter<"Article"> | string
   publishedAt?: Prisma.DateTimeNullableFilter<"Article"> | Date | string | null
   fetchedAt?: Prisma.DateTimeFilter<"Article"> | Date | string
-  category?: Prisma.StringNullableFilter<"Article"> | string | null
+  categoryId?: Prisma.StringNullableFilter<"Article"> | string | null
   entities?: Prisma.JsonNullableFilter<"Article">
   urgency?: Prisma.StringNullableFilter<"Article"> | string | null
   confidence?: Prisma.FloatNullableFilter<"Article"> | number | null
@@ -301,6 +301,7 @@ export type ArticleWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Article"> | Date | string
   rawArticle?: Prisma.XOR<Prisma.RawArticleScalarRelationFilter, Prisma.RawArticleWhereInput>
   source?: Prisma.XOR<Prisma.SourceScalarRelationFilter, Prisma.SourceWhereInput>
+  category?: Prisma.XOR<Prisma.NewsCategoryNullableScalarRelationFilter, Prisma.NewsCategoryWhereInput> | null
 }
 
 export type ArticleOrderByWithRelationInput = {
@@ -314,7 +315,7 @@ export type ArticleOrderByWithRelationInput = {
   language?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   fetchedAt?: Prisma.SortOrder
-  category?: Prisma.SortOrderInput | Prisma.SortOrder
+  categoryId?: Prisma.SortOrderInput | Prisma.SortOrder
   entities?: Prisma.SortOrderInput | Prisma.SortOrder
   urgency?: Prisma.SortOrderInput | Prisma.SortOrder
   confidence?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -322,6 +323,7 @@ export type ArticleOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   rawArticle?: Prisma.RawArticleOrderByWithRelationInput
   source?: Prisma.SourceOrderByWithRelationInput
+  category?: Prisma.NewsCategoryOrderByWithRelationInput
 }
 
 export type ArticleWhereUniqueInput = Prisma.AtLeast<{
@@ -338,7 +340,7 @@ export type ArticleWhereUniqueInput = Prisma.AtLeast<{
   language?: Prisma.StringFilter<"Article"> | string
   publishedAt?: Prisma.DateTimeNullableFilter<"Article"> | Date | string | null
   fetchedAt?: Prisma.DateTimeFilter<"Article"> | Date | string
-  category?: Prisma.StringNullableFilter<"Article"> | string | null
+  categoryId?: Prisma.StringNullableFilter<"Article"> | string | null
   entities?: Prisma.JsonNullableFilter<"Article">
   urgency?: Prisma.StringNullableFilter<"Article"> | string | null
   confidence?: Prisma.FloatNullableFilter<"Article"> | number | null
@@ -346,6 +348,7 @@ export type ArticleWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Article"> | Date | string
   rawArticle?: Prisma.XOR<Prisma.RawArticleScalarRelationFilter, Prisma.RawArticleWhereInput>
   source?: Prisma.XOR<Prisma.SourceScalarRelationFilter, Prisma.SourceWhereInput>
+  category?: Prisma.XOR<Prisma.NewsCategoryNullableScalarRelationFilter, Prisma.NewsCategoryWhereInput> | null
 }, "id" | "rawArticleId">
 
 export type ArticleOrderByWithAggregationInput = {
@@ -359,7 +362,7 @@ export type ArticleOrderByWithAggregationInput = {
   language?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   fetchedAt?: Prisma.SortOrder
-  category?: Prisma.SortOrderInput | Prisma.SortOrder
+  categoryId?: Prisma.SortOrderInput | Prisma.SortOrder
   entities?: Prisma.SortOrderInput | Prisma.SortOrder
   urgency?: Prisma.SortOrderInput | Prisma.SortOrder
   confidence?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -386,7 +389,7 @@ export type ArticleScalarWhereWithAggregatesInput = {
   language?: Prisma.StringWithAggregatesFilter<"Article"> | string
   publishedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Article"> | Date | string | null
   fetchedAt?: Prisma.DateTimeWithAggregatesFilter<"Article"> | Date | string
-  category?: Prisma.StringNullableWithAggregatesFilter<"Article"> | string | null
+  categoryId?: Prisma.StringNullableWithAggregatesFilter<"Article"> | string | null
   entities?: Prisma.JsonNullableWithAggregatesFilter<"Article">
   urgency?: Prisma.StringNullableWithAggregatesFilter<"Article"> | string | null
   confidence?: Prisma.FloatNullableWithAggregatesFilter<"Article"> | number | null
@@ -403,7 +406,6 @@ export type ArticleCreateInput = {
   language?: string
   publishedAt?: Date | string | null
   fetchedAt?: Date | string
-  category?: string | null
   entities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   urgency?: string | null
   confidence?: number | null
@@ -411,6 +413,7 @@ export type ArticleCreateInput = {
   updatedAt?: Date | string
   rawArticle: Prisma.RawArticleCreateNestedOneWithoutArticleInput
   source: Prisma.SourceCreateNestedOneWithoutArticlesInput
+  category?: Prisma.NewsCategoryCreateNestedOneWithoutArticlesInput
 }
 
 export type ArticleUncheckedCreateInput = {
@@ -424,7 +427,7 @@ export type ArticleUncheckedCreateInput = {
   language?: string
   publishedAt?: Date | string | null
   fetchedAt?: Date | string
-  category?: string | null
+  categoryId?: string | null
   entities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   urgency?: string | null
   confidence?: number | null
@@ -441,7 +444,6 @@ export type ArticleUpdateInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   fetchedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   entities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -449,6 +451,7 @@ export type ArticleUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rawArticle?: Prisma.RawArticleUpdateOneRequiredWithoutArticleNestedInput
   source?: Prisma.SourceUpdateOneRequiredWithoutArticlesNestedInput
+  category?: Prisma.NewsCategoryUpdateOneWithoutArticlesNestedInput
 }
 
 export type ArticleUncheckedUpdateInput = {
@@ -462,7 +465,7 @@ export type ArticleUncheckedUpdateInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   fetchedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   entities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -481,7 +484,7 @@ export type ArticleCreateManyInput = {
   language?: string
   publishedAt?: Date | string | null
   fetchedAt?: Date | string
-  category?: string | null
+  categoryId?: string | null
   entities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   urgency?: string | null
   confidence?: number | null
@@ -498,7 +501,6 @@ export type ArticleUpdateManyMutationInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   fetchedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   entities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -517,7 +519,7 @@ export type ArticleUncheckedUpdateManyInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   fetchedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   entities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -551,7 +553,7 @@ export type ArticleCountOrderByAggregateInput = {
   language?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
   fetchedAt?: Prisma.SortOrder
-  category?: Prisma.SortOrder
+  categoryId?: Prisma.SortOrder
   entities?: Prisma.SortOrder
   urgency?: Prisma.SortOrder
   confidence?: Prisma.SortOrder
@@ -574,7 +576,7 @@ export type ArticleMaxOrderByAggregateInput = {
   language?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
   fetchedAt?: Prisma.SortOrder
-  category?: Prisma.SortOrder
+  categoryId?: Prisma.SortOrder
   urgency?: Prisma.SortOrder
   confidence?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -592,7 +594,7 @@ export type ArticleMinOrderByAggregateInput = {
   language?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
   fetchedAt?: Prisma.SortOrder
-  category?: Prisma.SortOrder
+  categoryId?: Prisma.SortOrder
   urgency?: Prisma.SortOrder
   confidence?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -645,6 +647,48 @@ export type ArticleUncheckedUpdateManyWithoutSourceNestedInput = {
   deleteMany?: Prisma.ArticleScalarWhereInput | Prisma.ArticleScalarWhereInput[]
 }
 
+export type ArticleCreateNestedManyWithoutCategoryInput = {
+  create?: Prisma.XOR<Prisma.ArticleCreateWithoutCategoryInput, Prisma.ArticleUncheckedCreateWithoutCategoryInput> | Prisma.ArticleCreateWithoutCategoryInput[] | Prisma.ArticleUncheckedCreateWithoutCategoryInput[]
+  connectOrCreate?: Prisma.ArticleCreateOrConnectWithoutCategoryInput | Prisma.ArticleCreateOrConnectWithoutCategoryInput[]
+  createMany?: Prisma.ArticleCreateManyCategoryInputEnvelope
+  connect?: Prisma.ArticleWhereUniqueInput | Prisma.ArticleWhereUniqueInput[]
+}
+
+export type ArticleUncheckedCreateNestedManyWithoutCategoryInput = {
+  create?: Prisma.XOR<Prisma.ArticleCreateWithoutCategoryInput, Prisma.ArticleUncheckedCreateWithoutCategoryInput> | Prisma.ArticleCreateWithoutCategoryInput[] | Prisma.ArticleUncheckedCreateWithoutCategoryInput[]
+  connectOrCreate?: Prisma.ArticleCreateOrConnectWithoutCategoryInput | Prisma.ArticleCreateOrConnectWithoutCategoryInput[]
+  createMany?: Prisma.ArticleCreateManyCategoryInputEnvelope
+  connect?: Prisma.ArticleWhereUniqueInput | Prisma.ArticleWhereUniqueInput[]
+}
+
+export type ArticleUpdateManyWithoutCategoryNestedInput = {
+  create?: Prisma.XOR<Prisma.ArticleCreateWithoutCategoryInput, Prisma.ArticleUncheckedCreateWithoutCategoryInput> | Prisma.ArticleCreateWithoutCategoryInput[] | Prisma.ArticleUncheckedCreateWithoutCategoryInput[]
+  connectOrCreate?: Prisma.ArticleCreateOrConnectWithoutCategoryInput | Prisma.ArticleCreateOrConnectWithoutCategoryInput[]
+  upsert?: Prisma.ArticleUpsertWithWhereUniqueWithoutCategoryInput | Prisma.ArticleUpsertWithWhereUniqueWithoutCategoryInput[]
+  createMany?: Prisma.ArticleCreateManyCategoryInputEnvelope
+  set?: Prisma.ArticleWhereUniqueInput | Prisma.ArticleWhereUniqueInput[]
+  disconnect?: Prisma.ArticleWhereUniqueInput | Prisma.ArticleWhereUniqueInput[]
+  delete?: Prisma.ArticleWhereUniqueInput | Prisma.ArticleWhereUniqueInput[]
+  connect?: Prisma.ArticleWhereUniqueInput | Prisma.ArticleWhereUniqueInput[]
+  update?: Prisma.ArticleUpdateWithWhereUniqueWithoutCategoryInput | Prisma.ArticleUpdateWithWhereUniqueWithoutCategoryInput[]
+  updateMany?: Prisma.ArticleUpdateManyWithWhereWithoutCategoryInput | Prisma.ArticleUpdateManyWithWhereWithoutCategoryInput[]
+  deleteMany?: Prisma.ArticleScalarWhereInput | Prisma.ArticleScalarWhereInput[]
+}
+
+export type ArticleUncheckedUpdateManyWithoutCategoryNestedInput = {
+  create?: Prisma.XOR<Prisma.ArticleCreateWithoutCategoryInput, Prisma.ArticleUncheckedCreateWithoutCategoryInput> | Prisma.ArticleCreateWithoutCategoryInput[] | Prisma.ArticleUncheckedCreateWithoutCategoryInput[]
+  connectOrCreate?: Prisma.ArticleCreateOrConnectWithoutCategoryInput | Prisma.ArticleCreateOrConnectWithoutCategoryInput[]
+  upsert?: Prisma.ArticleUpsertWithWhereUniqueWithoutCategoryInput | Prisma.ArticleUpsertWithWhereUniqueWithoutCategoryInput[]
+  createMany?: Prisma.ArticleCreateManyCategoryInputEnvelope
+  set?: Prisma.ArticleWhereUniqueInput | Prisma.ArticleWhereUniqueInput[]
+  disconnect?: Prisma.ArticleWhereUniqueInput | Prisma.ArticleWhereUniqueInput[]
+  delete?: Prisma.ArticleWhereUniqueInput | Prisma.ArticleWhereUniqueInput[]
+  connect?: Prisma.ArticleWhereUniqueInput | Prisma.ArticleWhereUniqueInput[]
+  update?: Prisma.ArticleUpdateWithWhereUniqueWithoutCategoryInput | Prisma.ArticleUpdateWithWhereUniqueWithoutCategoryInput[]
+  updateMany?: Prisma.ArticleUpdateManyWithWhereWithoutCategoryInput | Prisma.ArticleUpdateManyWithWhereWithoutCategoryInput[]
+  deleteMany?: Prisma.ArticleScalarWhereInput | Prisma.ArticleScalarWhereInput[]
+}
+
 export type ArticleCreateNestedOneWithoutRawArticleInput = {
   create?: Prisma.XOR<Prisma.ArticleCreateWithoutRawArticleInput, Prisma.ArticleUncheckedCreateWithoutRawArticleInput>
   connectOrCreate?: Prisma.ArticleCreateOrConnectWithoutRawArticleInput
@@ -694,13 +738,13 @@ export type ArticleCreateWithoutSourceInput = {
   language?: string
   publishedAt?: Date | string | null
   fetchedAt?: Date | string
-  category?: string | null
   entities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   urgency?: string | null
   confidence?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   rawArticle: Prisma.RawArticleCreateNestedOneWithoutArticleInput
+  category?: Prisma.NewsCategoryCreateNestedOneWithoutArticlesInput
 }
 
 export type ArticleUncheckedCreateWithoutSourceInput = {
@@ -713,7 +757,7 @@ export type ArticleUncheckedCreateWithoutSourceInput = {
   language?: string
   publishedAt?: Date | string | null
   fetchedAt?: Date | string
-  category?: string | null
+  categoryId?: string | null
   entities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   urgency?: string | null
   confidence?: number | null
@@ -761,12 +805,74 @@ export type ArticleScalarWhereInput = {
   language?: Prisma.StringFilter<"Article"> | string
   publishedAt?: Prisma.DateTimeNullableFilter<"Article"> | Date | string | null
   fetchedAt?: Prisma.DateTimeFilter<"Article"> | Date | string
-  category?: Prisma.StringNullableFilter<"Article"> | string | null
+  categoryId?: Prisma.StringNullableFilter<"Article"> | string | null
   entities?: Prisma.JsonNullableFilter<"Article">
   urgency?: Prisma.StringNullableFilter<"Article"> | string | null
   confidence?: Prisma.FloatNullableFilter<"Article"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Article"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Article"> | Date | string
+}
+
+export type ArticleCreateWithoutCategoryInput = {
+  id?: string
+  title: string
+  summary?: string | null
+  url: string
+  imageUrl?: string | null
+  language?: string
+  publishedAt?: Date | string | null
+  fetchedAt?: Date | string
+  entities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  urgency?: string | null
+  confidence?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  rawArticle: Prisma.RawArticleCreateNestedOneWithoutArticleInput
+  source: Prisma.SourceCreateNestedOneWithoutArticlesInput
+}
+
+export type ArticleUncheckedCreateWithoutCategoryInput = {
+  id?: string
+  rawArticleId: string
+  sourceId: string
+  title: string
+  summary?: string | null
+  url: string
+  imageUrl?: string | null
+  language?: string
+  publishedAt?: Date | string | null
+  fetchedAt?: Date | string
+  entities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  urgency?: string | null
+  confidence?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ArticleCreateOrConnectWithoutCategoryInput = {
+  where: Prisma.ArticleWhereUniqueInput
+  create: Prisma.XOR<Prisma.ArticleCreateWithoutCategoryInput, Prisma.ArticleUncheckedCreateWithoutCategoryInput>
+}
+
+export type ArticleCreateManyCategoryInputEnvelope = {
+  data: Prisma.ArticleCreateManyCategoryInput | Prisma.ArticleCreateManyCategoryInput[]
+  skipDuplicates?: boolean
+}
+
+export type ArticleUpsertWithWhereUniqueWithoutCategoryInput = {
+  where: Prisma.ArticleWhereUniqueInput
+  update: Prisma.XOR<Prisma.ArticleUpdateWithoutCategoryInput, Prisma.ArticleUncheckedUpdateWithoutCategoryInput>
+  create: Prisma.XOR<Prisma.ArticleCreateWithoutCategoryInput, Prisma.ArticleUncheckedCreateWithoutCategoryInput>
+}
+
+export type ArticleUpdateWithWhereUniqueWithoutCategoryInput = {
+  where: Prisma.ArticleWhereUniqueInput
+  data: Prisma.XOR<Prisma.ArticleUpdateWithoutCategoryInput, Prisma.ArticleUncheckedUpdateWithoutCategoryInput>
+}
+
+export type ArticleUpdateManyWithWhereWithoutCategoryInput = {
+  where: Prisma.ArticleScalarWhereInput
+  data: Prisma.XOR<Prisma.ArticleUpdateManyMutationInput, Prisma.ArticleUncheckedUpdateManyWithoutCategoryInput>
 }
 
 export type ArticleCreateWithoutRawArticleInput = {
@@ -778,13 +884,13 @@ export type ArticleCreateWithoutRawArticleInput = {
   language?: string
   publishedAt?: Date | string | null
   fetchedAt?: Date | string
-  category?: string | null
   entities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   urgency?: string | null
   confidence?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   source: Prisma.SourceCreateNestedOneWithoutArticlesInput
+  category?: Prisma.NewsCategoryCreateNestedOneWithoutArticlesInput
 }
 
 export type ArticleUncheckedCreateWithoutRawArticleInput = {
@@ -797,7 +903,7 @@ export type ArticleUncheckedCreateWithoutRawArticleInput = {
   language?: string
   publishedAt?: Date | string | null
   fetchedAt?: Date | string
-  category?: string | null
+  categoryId?: string | null
   entities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   urgency?: string | null
   confidence?: number | null
@@ -830,13 +936,13 @@ export type ArticleUpdateWithoutRawArticleInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   fetchedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   entities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   source?: Prisma.SourceUpdateOneRequiredWithoutArticlesNestedInput
+  category?: Prisma.NewsCategoryUpdateOneWithoutArticlesNestedInput
 }
 
 export type ArticleUncheckedUpdateWithoutRawArticleInput = {
@@ -849,7 +955,7 @@ export type ArticleUncheckedUpdateWithoutRawArticleInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   fetchedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   entities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -867,7 +973,7 @@ export type ArticleCreateManySourceInput = {
   language?: string
   publishedAt?: Date | string | null
   fetchedAt?: Date | string
-  category?: string | null
+  categoryId?: string | null
   entities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   urgency?: string | null
   confidence?: number | null
@@ -884,13 +990,13 @@ export type ArticleUpdateWithoutSourceInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   fetchedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   entities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rawArticle?: Prisma.RawArticleUpdateOneRequiredWithoutArticleNestedInput
+  category?: Prisma.NewsCategoryUpdateOneWithoutArticlesNestedInput
 }
 
 export type ArticleUncheckedUpdateWithoutSourceInput = {
@@ -903,7 +1009,7 @@ export type ArticleUncheckedUpdateWithoutSourceInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   fetchedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   entities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -921,7 +1027,79 @@ export type ArticleUncheckedUpdateManyWithoutSourceInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   fetchedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ArticleCreateManyCategoryInput = {
+  id?: string
+  rawArticleId: string
+  sourceId: string
+  title: string
+  summary?: string | null
+  url: string
+  imageUrl?: string | null
+  language?: string
+  publishedAt?: Date | string | null
+  fetchedAt?: Date | string
+  entities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  urgency?: string | null
+  confidence?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ArticleUpdateWithoutCategoryInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  url?: Prisma.StringFieldUpdateOperationsInput | string
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.StringFieldUpdateOperationsInput | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fetchedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  entities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  rawArticle?: Prisma.RawArticleUpdateOneRequiredWithoutArticleNestedInput
+  source?: Prisma.SourceUpdateOneRequiredWithoutArticlesNestedInput
+}
+
+export type ArticleUncheckedUpdateWithoutCategoryInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  rawArticleId?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  url?: Prisma.StringFieldUpdateOperationsInput | string
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.StringFieldUpdateOperationsInput | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fetchedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  entities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ArticleUncheckedUpdateManyWithoutCategoryInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  rawArticleId?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  url?: Prisma.StringFieldUpdateOperationsInput | string
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  language?: Prisma.StringFieldUpdateOperationsInput | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fetchedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   entities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -942,7 +1120,7 @@ export type ArticleSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   language?: boolean
   publishedAt?: boolean
   fetchedAt?: boolean
-  category?: boolean
+  categoryId?: boolean
   entities?: boolean
   urgency?: boolean
   confidence?: boolean
@@ -950,6 +1128,7 @@ export type ArticleSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   updatedAt?: boolean
   rawArticle?: boolean | Prisma.RawArticleDefaultArgs<ExtArgs>
   source?: boolean | Prisma.SourceDefaultArgs<ExtArgs>
+  category?: boolean | Prisma.Article$categoryArgs<ExtArgs>
 }, ExtArgs["result"]["article"]>
 
 export type ArticleSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -963,7 +1142,7 @@ export type ArticleSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   language?: boolean
   publishedAt?: boolean
   fetchedAt?: boolean
-  category?: boolean
+  categoryId?: boolean
   entities?: boolean
   urgency?: boolean
   confidence?: boolean
@@ -971,6 +1150,7 @@ export type ArticleSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   updatedAt?: boolean
   rawArticle?: boolean | Prisma.RawArticleDefaultArgs<ExtArgs>
   source?: boolean | Prisma.SourceDefaultArgs<ExtArgs>
+  category?: boolean | Prisma.Article$categoryArgs<ExtArgs>
 }, ExtArgs["result"]["article"]>
 
 export type ArticleSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -984,7 +1164,7 @@ export type ArticleSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   language?: boolean
   publishedAt?: boolean
   fetchedAt?: boolean
-  category?: boolean
+  categoryId?: boolean
   entities?: boolean
   urgency?: boolean
   confidence?: boolean
@@ -992,6 +1172,7 @@ export type ArticleSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   updatedAt?: boolean
   rawArticle?: boolean | Prisma.RawArticleDefaultArgs<ExtArgs>
   source?: boolean | Prisma.SourceDefaultArgs<ExtArgs>
+  category?: boolean | Prisma.Article$categoryArgs<ExtArgs>
 }, ExtArgs["result"]["article"]>
 
 export type ArticleSelectScalar = {
@@ -1005,7 +1186,7 @@ export type ArticleSelectScalar = {
   language?: boolean
   publishedAt?: boolean
   fetchedAt?: boolean
-  category?: boolean
+  categoryId?: boolean
   entities?: boolean
   urgency?: boolean
   confidence?: boolean
@@ -1013,18 +1194,21 @@ export type ArticleSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ArticleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "rawArticleId" | "sourceId" | "title" | "summary" | "url" | "imageUrl" | "language" | "publishedAt" | "fetchedAt" | "category" | "entities" | "urgency" | "confidence" | "createdAt" | "updatedAt", ExtArgs["result"]["article"]>
+export type ArticleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "rawArticleId" | "sourceId" | "title" | "summary" | "url" | "imageUrl" | "language" | "publishedAt" | "fetchedAt" | "categoryId" | "entities" | "urgency" | "confidence" | "createdAt" | "updatedAt", ExtArgs["result"]["article"]>
 export type ArticleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   rawArticle?: boolean | Prisma.RawArticleDefaultArgs<ExtArgs>
   source?: boolean | Prisma.SourceDefaultArgs<ExtArgs>
+  category?: boolean | Prisma.Article$categoryArgs<ExtArgs>
 }
 export type ArticleIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   rawArticle?: boolean | Prisma.RawArticleDefaultArgs<ExtArgs>
   source?: boolean | Prisma.SourceDefaultArgs<ExtArgs>
+  category?: boolean | Prisma.Article$categoryArgs<ExtArgs>
 }
 export type ArticleIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   rawArticle?: boolean | Prisma.RawArticleDefaultArgs<ExtArgs>
   source?: boolean | Prisma.SourceDefaultArgs<ExtArgs>
+  category?: boolean | Prisma.Article$categoryArgs<ExtArgs>
 }
 
 export type $ArticlePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1032,6 +1216,7 @@ export type $ArticlePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   objects: {
     rawArticle: Prisma.$RawArticlePayload<ExtArgs>
     source: Prisma.$SourcePayload<ExtArgs>
+    category: Prisma.$NewsCategoryPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1044,7 +1229,7 @@ export type $ArticlePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     language: string
     publishedAt: Date | null
     fetchedAt: Date
-    category: string | null
+    categoryId: string | null
     entities: runtime.JsonValue | null
     urgency: string | null
     confidence: number | null
@@ -1446,6 +1631,7 @@ export interface Prisma__ArticleClient<T, Null = never, ExtArgs extends runtime.
   readonly [Symbol.toStringTag]: "PrismaPromise"
   rawArticle<T extends Prisma.RawArticleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RawArticleDefaultArgs<ExtArgs>>): Prisma.Prisma__RawArticleClient<runtime.Types.Result.GetResult<Prisma.$RawArticlePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   source<T extends Prisma.SourceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SourceDefaultArgs<ExtArgs>>): Prisma.Prisma__SourceClient<runtime.Types.Result.GetResult<Prisma.$SourcePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  category<T extends Prisma.Article$categoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Article$categoryArgs<ExtArgs>>): Prisma.Prisma__NewsCategoryClient<runtime.Types.Result.GetResult<Prisma.$NewsCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1485,7 +1671,7 @@ export interface ArticleFieldRefs {
   readonly language: Prisma.FieldRef<"Article", 'String'>
   readonly publishedAt: Prisma.FieldRef<"Article", 'DateTime'>
   readonly fetchedAt: Prisma.FieldRef<"Article", 'DateTime'>
-  readonly category: Prisma.FieldRef<"Article", 'String'>
+  readonly categoryId: Prisma.FieldRef<"Article", 'String'>
   readonly entities: Prisma.FieldRef<"Article", 'Json'>
   readonly urgency: Prisma.FieldRef<"Article", 'String'>
   readonly confidence: Prisma.FieldRef<"Article", 'Float'>
@@ -1889,6 +2075,25 @@ export type ArticleDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Limit how many Articles to delete.
    */
   limit?: number
+}
+
+/**
+ * Article.category
+ */
+export type Article$categoryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the NewsCategory
+   */
+  select?: Prisma.NewsCategorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the NewsCategory
+   */
+  omit?: Prisma.NewsCategoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.NewsCategoryInclude<ExtArgs> | null
+  where?: Prisma.NewsCategoryWhereInput
 }
 
 /**

@@ -51,6 +51,8 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   Source: 'Source',
+  SourceFeed: 'SourceFeed',
+  NewsCategory: 'NewsCategory',
   RawArticle: 'RawArticle',
   Article: 'Article'
 } as const
@@ -76,9 +78,9 @@ export const SourceScalarFieldEnum = {
   name: 'name',
   slug: 'slug',
   type: 'type',
-  feedUrl: 'feedUrl',
+  homepageUrl: 'homepageUrl',
+  trustTier: 'trustTier',
   isActive: 'isActive',
-  lastFetchedAt: 'lastFetchedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -86,9 +88,42 @@ export const SourceScalarFieldEnum = {
 export type SourceScalarFieldEnum = (typeof SourceScalarFieldEnum)[keyof typeof SourceScalarFieldEnum]
 
 
-export const RawArticleScalarFieldEnum = {
+export const SourceFeedScalarFieldEnum = {
   id: 'id',
   sourceId: 'sourceId',
+  url: 'url',
+  ingestMethod: 'ingestMethod',
+  language: 'language',
+  categoryId: 'categoryId',
+  rawCategoryLabel: 'rawCategoryLabel',
+  fetchIntervalSeconds: 'fetchIntervalSeconds',
+  lastFetchedAt: 'lastFetchedAt',
+  lastEtag: 'lastEtag',
+  lastModifiedHeader: 'lastModifiedHeader',
+  isActive: 'isActive',
+  consecutiveFailures: 'consecutiveFailures',
+  lastStatus: 'lastStatus',
+  lastError: 'lastError',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SourceFeedScalarFieldEnum = (typeof SourceFeedScalarFieldEnum)[keyof typeof SourceFeedScalarFieldEnum]
+
+
+export const NewsCategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  parentId: 'parentId'
+} as const
+
+export type NewsCategoryScalarFieldEnum = (typeof NewsCategoryScalarFieldEnum)[keyof typeof NewsCategoryScalarFieldEnum]
+
+
+export const RawArticleScalarFieldEnum = {
+  id: 'id',
+  sourceFeedId: 'sourceFeedId',
   externalId: 'externalId',
   payload: 'payload',
   fetchedAt: 'fetchedAt',
@@ -113,7 +148,7 @@ export const ArticleScalarFieldEnum = {
   language: 'language',
   publishedAt: 'publishedAt',
   fetchedAt: 'fetchedAt',
-  category: 'category',
+  categoryId: 'categoryId',
   entities: 'entities',
   urgency: 'urgency',
   confidence: 'confidence',

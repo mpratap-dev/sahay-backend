@@ -42,7 +42,7 @@ describe('ArticlesService', () => {
       source: { name: 'Source', type: 'NEWS' },
     };
 
-    prisma.$transaction.mockResolvedValue([ [article], 1 ]);
+    prisma.$transaction.mockResolvedValue([[article], 1]);
 
     const result = await service.findAll({ page: 1, limit: 20 });
 

@@ -18,39 +18,91 @@ enum SourceType {
   CITIZEN
 }
 
-model Source {
-  id            String     @id @default(cuid())
-  name          String     @unique
-  slug          String     @unique
-  type          SourceType
-  feedUrl       String
-  isActive      Boolean    @default(true)
-  lastFetchedAt DateTime?
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-
-  rawArticles RawArticle[]
-  articles    Article[]
+enum IngestMethod {
+  RSS
+  API
+  WEBHOOK
+  SCRAPE
 }
 
+// Publisher (one row per outlet). Pollable endpoints live on SourceFeed.
+model Source {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  slug        String     @unique
+  type        SourceType
+  homepageUrl String
+  trustTier   Int        @default(2) // 1 = official/govt, 2 = established outlet, 3 = aggregator/blog
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  feeds    SourceFeed[]
+  articles Article[]
+}
+
+model SourceFeed {
+  id       String @id @default(cuid())
+  sourceId String
+  source   Source @relation(fields: [sourceId], references: [id])
+
+  url          String       @unique
+  ingestMethod IngestMethod @default(RSS)
+  language     String       @default("en")
+
+  categoryId       String?
+  category         NewsCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  rawCategoryLabel String?
+
+  fetchIntervalSeconds Int       @default(900)
+  lastFetchedAt        DateTime?
+  lastEtag             String?
+  lastModifiedHeader   String?
+
+  isActive            Boolean @default(true)
+  consecutiveFailures Int     @default(0)
+  lastStatus          String?
+  lastError           String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  rawArticles RawArticle[]
+
+  @@index([isActive, fetchIntervalSeconds])
+}
+
+model NewsCategory {
+  id       String         @id @default(cuid())
+  name     String
+  slug     String         @unique
+  parentId String?
+  parent   NewsCategory?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children NewsCategory[] @relation("CategoryHierarchy")
+
+  feeds    SourceFeed[]
+  articles Article[]
+}
+
+// Immutable ingest snapshot. After insert, only processing metadata may change.
 model RawArticle {
-  id              String    @id @default(cuid())
-  sourceId        String
-  source          Source    @relation(fields: [sourceId], references: [id])
+  id              String     @id @default(cuid())
+  sourceFeedId    String
+  sourceFeed      SourceFeed @relation(fields: [sourceFeedId], references: [id])
   externalId      String
   payload         Json
-  fetchedAt       DateTime  @default(now())
-  processed       Boolean   @default(false)
+  fetchedAt       DateTime   @default(now())
+  processed       Boolean    @default(false)
   processedAt     DateTime?
   processingError String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
 
   article Article?
 
-  @@unique([sourceId, externalId])
+  @@unique([sourceFeedId, externalId])
   @@index([processed])
-  @@index([sourceId, fetchedAt])
+  @@index([sourceFeedId, fetchedAt])
 }
 
 model Article {
@@ -68,8 +120,9 @@ model Article {
   publishedAt DateTime?
   fetchedAt   DateTime  @default(now())
 
-  // Phase 2+ fields
-  category   String?
+  categoryId String?
+  category   NewsCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
   entities   Json?
   urgency    String?
   confidence Float?
@@ -79,4 +132,5 @@ model Article {
 
   @@index([publishedAt])
   @@index([sourceId])
+  @@index([categoryId])
 }

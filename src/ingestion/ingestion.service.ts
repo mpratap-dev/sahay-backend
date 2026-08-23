@@ -37,36 +37,42 @@ export class IngestionService {
     }
 
     const fetcher = this.fetcherRegistry.getFetcherForSource();
-    const items = await fetcher.fetch(source.feedUrl);
+    const activeFeeds = source.feeds.filter((feed) => feed.isActive);
 
+    let itemsFetched = 0;
     let newRawArticles = 0;
 
-    for (const item of items) {
-      const existing = await this.prisma.rawArticle.findUnique({
-        where: {
-          sourceId_externalId: {
-            sourceId: source.id,
-            externalId: item.externalId,
-          },
-        },
-      });
+    for (const feed of activeFeeds) {
+      const items = await fetcher.fetch(feed.url);
+      itemsFetched += items.length;
 
-      if (!existing) {
-        await this.prisma.rawArticle.create({
-          data: {
-            sourceId: source.id,
-            externalId: item.externalId,
-            payload: item.payload as Prisma.InputJsonValue,
+      for (const item of items) {
+        const existing = await this.prisma.rawArticle.findUnique({
+          where: {
+            sourceFeedId_externalId: {
+              sourceFeedId: feed.id,
+              externalId: item.externalId,
+            },
           },
         });
-        newRawArticles++;
-      }
-    }
 
-    await this.prisma.source.update({
-      where: { id: source.id },
-      data: { lastFetchedAt: new Date() },
-    });
+        if (!existing) {
+          await this.prisma.rawArticle.create({
+            data: {
+              sourceFeedId: feed.id,
+              externalId: item.externalId,
+              payload: item.payload as Prisma.InputJsonValue,
+            },
+          });
+          newRawArticles++;
+        }
+      }
+
+      await this.prisma.sourceFeed.update({
+        where: { id: feed.id },
+        data: { lastFetchedAt: new Date() },
+      });
+    }
 
     const articlesNormalized =
       await this.normalizationService.normalizeUnprocessedForSource(source.id);
@@ -77,7 +83,7 @@ export class IngestionService {
       msg: 'Ingestion completed',
       sourceId: source.id,
       sourceSlug: source.slug,
-      itemsFetched: items.length,
+      itemsFetched,
       newRawArticles,
       articlesNormalized,
       durationMs,
@@ -85,7 +91,7 @@ export class IngestionService {
 
     return {
       sourceId: source.id,
-      itemsFetched: items.length,
+      itemsFetched,
       newRawArticles,
       articlesNormalized,
       durationMs,

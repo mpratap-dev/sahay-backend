@@ -85,4 +85,18 @@ describe('NormalizationService', () => {
       }),
     ).toThrow('No usable URL for article normalization');
   });
+
+  it('extracts imageUrl from enclosure onto Article, not payload', () => {
+    const payload = {
+      title: 'T',
+      link: 'https://example.com/a',
+      enclosure: {
+        url: 'https://example.com/photo.jpg',
+        type: 'image/jpeg',
+      },
+    };
+    const result = service.normalizePayload(payload);
+    expect(result.imageUrl).toBe('https://example.com/photo.jpg');
+    expect(payload).not.toHaveProperty('imageUrl');
+  });
 });

@@ -1,0 +1,62 @@
+---
+description: Sahay civic intelligence platform — product thesis, current phase, and build constraints
+alwaysApply: true
+---
+
+# SAHAY — Agent Brief
+
+**Smart Access & Holistic Assistance for You.** Civic intelligence platform for Indian citizens (launch geography: Delhi).
+
+## Product thesis (non-negotiable)
+
+SAHAY is **not** a news aggregator with AI on top. It is a **real-world event intelligence platform**: signals (news, government, traffic, weather, citizen reports) → events → user relevance → actionable civic experience.
+
+Every feature should answer: *What is happening that matters to me? Why? What can I do? Who is responsible?*
+
+Full product context: `docs/vision.md`
+
+## Current engineering status
+
+**Active phase:** Phase 1B → Phase 2 (multi-source bilingual ingestion + canonical model)
+
+**Done / in repo:**
+- RSS ingestion pipeline (fetcher, queue, scheduler, raw storage, normalization)
+- `Source`, `RawArticle`, `Article` models with `language` field
+- Basic articles API
+
+**Next (in order):**
+1. Add 3–5 Delhi-relevant sources (mix Hindi + English RSS)
+2. Harden normalization (missing dates, encoding, duplicate wire stories, language detection)
+3. Evolve `Article` toward canonical `ContentItem` (type, location, entities, urgency, confidence, raw metadata)
+4. Simple internal feed API — **before** personalization, events, or ranking
+
+**Do not start yet:** personalized feed, event intelligence, user context, ranking, social listening, city-wide traffic, government scrapers (except IMD when Phase 3 begins).
+
+Full phased plan: `docs/roadmap.md`
+
+## Architecture invariants
+
+- **One canonical model** for all sources — never separate `news` / `traffic` / `government` silos.
+- **Adapter pattern:** adding a source = new fetcher/adapter, not a new subsystem.
+- **Language is first-class** (`hi` / `en` / mixed) from ingestion, not inferred later.
+- **Source trust tiers:** Official → Verified News → News → Social → Citizen Report → AI Interpretation. Never present AI output as original source.
+- **Feasibility-aware sourcing:**
+  - ✅ RSS news, IMD weather/highway alerts, `data.gov.in` static data, citizen reports
+  - ⚠️ Traffic = bounded Google Routes corridor list only; government = per-department scrapers
+  - ❌ Reddit/Facebook/Instagram APIs, city-wide traffic feeds, unified government API
+
+Full system design: `docs/architecture.md`
+
+## When planning or implementing
+
+1. Read the relevant section in `docs/roadmap.md` for the phase you're in.
+2. Check `docs/architecture.md` for how it fits the event → relevance → UX pipeline.
+3. Prefer the **smallest vertical slice** that proves the pipeline end-to-end.
+4. Defer UI personalization until enough signals exist to make it meaningful.
+5. Budget external APIs conservatively — prefer free/self-serve sources (IMD, RSS) first.
+
+## Repo conventions
+
+- Backend: NestJS + Prisma + PostgreSQL (`sahay-backend`)
+- Ingestion lives in `src/ingestion/`; articles API in `src/articles/`
+- New sources: implement `Fetcher` interface, register in `fetcher.registry.ts`

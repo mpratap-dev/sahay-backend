@@ -18,7 +18,7 @@ export class NormalizationService {
 
   async normalizeUnprocessedForSource(sourceId: string): Promise<number> {
     const unprocessed = await this.prisma.rawArticle.findMany({
-      where: { sourceId, processed: false },
+      where: { processed: false, sourceFeed: { sourceId } },
     });
 
     let normalized = 0;
@@ -43,6 +43,7 @@ export class NormalizationService {
   async normalizeRawArticle(rawArticleId: string): Promise<boolean> {
     const rawArticle = await this.prisma.rawArticle.findUnique({
       where: { id: rawArticleId },
+      include: { sourceFeed: true },
     });
 
     if (!rawArticle || rawArticle.processed) {
@@ -63,7 +64,7 @@ export class NormalizationService {
           await tx.article.create({
             data: {
               rawArticleId: rawArticle.id,
-              sourceId: rawArticle.sourceId,
+              sourceId: rawArticle.sourceFeed.sourceId,
               title: normalized.title,
               summary: normalized.summary,
               url: normalized.url,
@@ -117,6 +118,58 @@ export class NormalizationService {
     return null;
   }
 
+  private extractImageUrl(payload: Record<string, unknown>): string | null {
+    const enclosure = payload.enclosure as Record<string, unknown> | undefined;
+    if (enclosure && typeof enclosure.url === 'string') {
+      const type = enclosure.type as string | undefined;
+      if (!type || type.startsWith('image/')) {
+        const url = enclosure.url.trim();
+        if (this.isValidUrl(url)) return url;
+      }
+    }
+
+    const mediaContent = payload['media:content'] as
+      Record<string, unknown> | Record<string, unknown>[] | undefined;
+
+    if (Array.isArray(mediaContent)) {
+      for (const media of mediaContent) {
+        const url = this.imageUrlFromMedia(media);
+        if (url) return url;
+      }
+    } else if (mediaContent) {
+      const url = this.imageUrlFromMedia(mediaContent);
+      if (url) return url;
+    }
+
+    const mediaThumbnail = payload['media:thumbnail'] as
+      Record<string, unknown> | Record<string, unknown>[] | undefined;
+
+    if (Array.isArray(mediaThumbnail)) {
+      for (const thumb of mediaThumbnail) {
+        if (typeof thumb.url === 'string') {
+          const url = thumb.url.trim();
+          if (this.isValidUrl(url)) return url;
+        }
+      }
+    } else if (mediaThumbnail && typeof mediaThumbnail.url === 'string') {
+      const url = mediaThumbnail.url.trim();
+      if (this.isValidUrl(url)) return url;
+    }
+
+    return null;
+  }
+
+  private imageUrlFromMedia(media: Record<string, unknown>): string | null {
+    if (typeof media.url !== 'string') return null;
+    const type = media.type as string | undefined;
+    const medium = media.medium as string | undefined;
+    if (medium === 'image' || (type && type.startsWith('image/')) || !type) {
+      const url = media.url.trim();
+      if (this.isValidUrl(url)) return url;
+    }
+    return null;
+  }
+
   normalizePayload(payload: Record<string, unknown>): NormalizedArticleData {
     const title =
       typeof payload.title === 'string' && payload.title.trim()
@@ -137,7 +190,7 @@ export class NormalizationService {
       throw new Error('No usable URL for article normalization');
     }
 
-    const imageUrl = this.getImageUrl(payload);
+    const imageUrl = this.extractImageUrl(payload) ?? this.getImageUrl(payload);
 
     const publishedAt = this.parsePublishedAt(
       payload.pubDate ?? payload.published ?? payload.updated,

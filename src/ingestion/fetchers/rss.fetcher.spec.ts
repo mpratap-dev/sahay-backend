@@ -46,7 +46,7 @@ describe('RssFetcher', () => {
       headers: { get: () => null },
       body: null,
       text: async () => sampleRss,
-    } as Response);
+    });
 
     const items = await fetcher.fetch('https://example.com/feed.rss');
 
@@ -62,7 +62,7 @@ describe('RssFetcher', () => {
       status: 500,
       statusText: 'Internal Server Error',
       headers: { get: () => null },
-    } as Response);
+    });
 
     await expect(fetcher.fetch('https://example.com/feed.rss')).rejects.toThrow(
       'Feed fetch failed: 500',
@@ -84,7 +84,7 @@ describe('RssFetcher', () => {
       headers: { get: () => null },
       body: null,
       text: async () => rssWithoutGuid,
-    } as Response);
+    });
 
     const first = await fetcher.fetch('https://example.com/feed.rss');
     const second = await fetcher.fetch('https://example.com/feed.rss');
@@ -104,7 +104,7 @@ describe('RssFetcher', () => {
       headers: { get: () => null },
       body: null,
       text: async () => rssOnlyBadItem,
-    } as Response);
+    });
 
     const items = await fetcher.fetch('https://example.com/feed.rss');
     expect(items).toHaveLength(0);

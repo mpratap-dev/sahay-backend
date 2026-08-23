@@ -12,7 +12,13 @@ describe('IngestionService deduplication', () => {
     id: 'source-1',
     slug: 'test-source',
     isActive: true,
-    feedUrl: 'https://example.com/feed.rss',
+    feeds: [
+      {
+        id: 'feed-1',
+        url: 'https://example.com/feed.rss',
+        isActive: true,
+      },
+    ],
   };
 
   const prisma = {
@@ -20,7 +26,7 @@ describe('IngestionService deduplication', () => {
       findUnique: jest.fn(),
       create: jest.fn(),
     },
-    source: {
+    sourceFeed: {
       update: jest.fn(),
     },
   };
@@ -42,7 +48,7 @@ describe('IngestionService deduplication', () => {
     jest.clearAllMocks();
 
     prisma.rawArticle.findUnique.mockResolvedValue({ id: 'existing' });
-    prisma.source.update.mockResolvedValue(source);
+    prisma.sourceFeed.update.mockResolvedValue(source.feeds[0]);
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -82,6 +88,12 @@ describe('IngestionService deduplication', () => {
     const result = await service.ingestSource('source-1');
 
     expect(result.newRawArticles).toBe(1);
-    expect(prisma.rawArticle.create).toHaveBeenCalled();
+    expect(prisma.rawArticle.create).toHaveBeenCalledWith({
+      data: {
+        sourceFeedId: 'feed-1',
+        externalId: 'ext-1',
+        payload: { title: 'T', link: 'https://example.com/a' },
+      },
+    });
   });
 });

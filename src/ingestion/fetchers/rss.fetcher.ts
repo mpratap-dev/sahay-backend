@@ -62,11 +62,6 @@ export class RssFetcher implements SourceFetcher {
         continue;
       }
 
-      const imageUrl = this.extractImageUrl(payload);
-      if (imageUrl) {
-        payload.imageUrl = imageUrl;
-      }
-
       results.push({ externalId, payload });
     }
 
@@ -160,55 +155,5 @@ export class RssFetcher implements SourceFetcher {
   private normalizeUrl(url: string | undefined): string | undefined {
     if (!url) return undefined;
     return url.trim();
-  }
-
-  private extractImageUrl(
-    payload: Record<string, unknown>,
-  ): string | undefined {
-    const enclosure = payload.enclosure as Record<string, unknown> | undefined;
-    if (enclosure && typeof enclosure.url === 'string') {
-      const type = enclosure.type as string | undefined;
-      if (!type || type.startsWith('image/')) {
-        return enclosure.url.trim();
-      }
-    }
-
-    const mediaContent = payload['media:content'] as
-      Record<string, unknown> | Record<string, unknown>[] | undefined;
-
-    if (Array.isArray(mediaContent)) {
-      for (const media of mediaContent) {
-        const url = this.imageUrlFromMedia(media);
-        if (url) return url;
-      }
-    } else if (mediaContent) {
-      const url = this.imageUrlFromMedia(mediaContent);
-      if (url) return url;
-    }
-
-    const mediaThumbnail = payload['media:thumbnail'] as
-      Record<string, unknown> | Record<string, unknown>[] | undefined;
-
-    if (Array.isArray(mediaThumbnail)) {
-      for (const thumb of mediaThumbnail) {
-        if (typeof thumb.url === 'string') return thumb.url.trim();
-      }
-    } else if (mediaThumbnail && typeof mediaThumbnail.url === 'string') {
-      return mediaThumbnail.url.trim();
-    }
-
-    return undefined;
-  }
-
-  private imageUrlFromMedia(
-    media: Record<string, unknown>,
-  ): string | undefined {
-    if (typeof media.url !== 'string') return undefined;
-    const type = media.type as string | undefined;
-    const medium = media.medium as string | undefined;
-    if (medium === 'image' || (type && type.startsWith('image/')) || !type) {
-      return media.url.trim();
-    }
-    return undefined;
   }
 }

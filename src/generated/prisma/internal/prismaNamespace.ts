@@ -397,6 +397,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   Source: 'Source',
+  SourceFeed: 'SourceFeed',
+  NewsCategory: 'NewsCategory',
   RawArticle: 'RawArticle',
   Article: 'Article'
 } as const
@@ -414,7 +416,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "source" | "rawArticle" | "article"
+    modelProps: "source" | "sourceFeed" | "newsCategory" | "rawArticle" | "article"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -489,6 +491,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.SourceCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.SourceCountAggregateOutputType> | number
+        }
+      }
+    }
+    SourceFeed: {
+      payload: Prisma.$SourceFeedPayload<ExtArgs>
+      fields: Prisma.SourceFeedFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SourceFeedFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SourceFeedPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SourceFeedFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SourceFeedPayload>
+        }
+        findFirst: {
+          args: Prisma.SourceFeedFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SourceFeedPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SourceFeedFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SourceFeedPayload>
+        }
+        findMany: {
+          args: Prisma.SourceFeedFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SourceFeedPayload>[]
+        }
+        create: {
+          args: Prisma.SourceFeedCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SourceFeedPayload>
+        }
+        createMany: {
+          args: Prisma.SourceFeedCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SourceFeedCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SourceFeedPayload>[]
+        }
+        delete: {
+          args: Prisma.SourceFeedDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SourceFeedPayload>
+        }
+        update: {
+          args: Prisma.SourceFeedUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SourceFeedPayload>
+        }
+        deleteMany: {
+          args: Prisma.SourceFeedDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SourceFeedUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SourceFeedUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SourceFeedPayload>[]
+        }
+        upsert: {
+          args: Prisma.SourceFeedUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SourceFeedPayload>
+        }
+        aggregate: {
+          args: Prisma.SourceFeedAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSourceFeed>
+        }
+        groupBy: {
+          args: Prisma.SourceFeedGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SourceFeedGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SourceFeedCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SourceFeedCountAggregateOutputType> | number
+        }
+      }
+    }
+    NewsCategory: {
+      payload: Prisma.$NewsCategoryPayload<ExtArgs>
+      fields: Prisma.NewsCategoryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NewsCategoryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NewsCategoryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NewsCategoryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NewsCategoryPayload>
+        }
+        findFirst: {
+          args: Prisma.NewsCategoryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NewsCategoryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NewsCategoryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NewsCategoryPayload>
+        }
+        findMany: {
+          args: Prisma.NewsCategoryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NewsCategoryPayload>[]
+        }
+        create: {
+          args: Prisma.NewsCategoryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NewsCategoryPayload>
+        }
+        createMany: {
+          args: Prisma.NewsCategoryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.NewsCategoryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NewsCategoryPayload>[]
+        }
+        delete: {
+          args: Prisma.NewsCategoryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NewsCategoryPayload>
+        }
+        update: {
+          args: Prisma.NewsCategoryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NewsCategoryPayload>
+        }
+        deleteMany: {
+          args: Prisma.NewsCategoryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NewsCategoryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.NewsCategoryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NewsCategoryPayload>[]
+        }
+        upsert: {
+          args: Prisma.NewsCategoryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NewsCategoryPayload>
+        }
+        aggregate: {
+          args: Prisma.NewsCategoryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNewsCategory>
+        }
+        groupBy: {
+          args: Prisma.NewsCategoryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NewsCategoryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NewsCategoryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NewsCategoryCountAggregateOutputType> | number
         }
       }
     }
@@ -684,9 +834,9 @@ export const SourceScalarFieldEnum = {
   name: 'name',
   slug: 'slug',
   type: 'type',
-  feedUrl: 'feedUrl',
+  homepageUrl: 'homepageUrl',
+  trustTier: 'trustTier',
   isActive: 'isActive',
-  lastFetchedAt: 'lastFetchedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -694,9 +844,42 @@ export const SourceScalarFieldEnum = {
 export type SourceScalarFieldEnum = (typeof SourceScalarFieldEnum)[keyof typeof SourceScalarFieldEnum]
 
 
-export const RawArticleScalarFieldEnum = {
+export const SourceFeedScalarFieldEnum = {
   id: 'id',
   sourceId: 'sourceId',
+  url: 'url',
+  ingestMethod: 'ingestMethod',
+  language: 'language',
+  categoryId: 'categoryId',
+  rawCategoryLabel: 'rawCategoryLabel',
+  fetchIntervalSeconds: 'fetchIntervalSeconds',
+  lastFetchedAt: 'lastFetchedAt',
+  lastEtag: 'lastEtag',
+  lastModifiedHeader: 'lastModifiedHeader',
+  isActive: 'isActive',
+  consecutiveFailures: 'consecutiveFailures',
+  lastStatus: 'lastStatus',
+  lastError: 'lastError',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SourceFeedScalarFieldEnum = (typeof SourceFeedScalarFieldEnum)[keyof typeof SourceFeedScalarFieldEnum]
+
+
+export const NewsCategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  parentId: 'parentId'
+} as const
+
+export type NewsCategoryScalarFieldEnum = (typeof NewsCategoryScalarFieldEnum)[keyof typeof NewsCategoryScalarFieldEnum]
+
+
+export const RawArticleScalarFieldEnum = {
+  id: 'id',
+  sourceFeedId: 'sourceFeedId',
   externalId: 'externalId',
   payload: 'payload',
   fetchedAt: 'fetchedAt',
@@ -721,7 +904,7 @@ export const ArticleScalarFieldEnum = {
   language: 'language',
   publishedAt: 'publishedAt',
   fetchedAt: 'fetchedAt',
-  category: 'category',
+  categoryId: 'categoryId',
   entities: 'entities',
   urgency: 'urgency',
   confidence: 'confidence',
@@ -815,6 +998,20 @@ export type ListEnumSourceTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$P
 
 
 /**
+ * Reference to a field of type 'Int'
+ */
+export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+/**
+ * Reference to a field of type 'Int[]'
+ */
+export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
  * Reference to a field of type 'Boolean'
  */
 export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
@@ -832,6 +1029,20 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'DateTime[]'
  */
 export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+/**
+ * Reference to a field of type 'IngestMethod'
+ */
+export type EnumIngestMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'IngestMethod'>
+    
+
+
+/**
+ * Reference to a field of type 'IngestMethod[]'
+ */
+export type ListEnumIngestMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'IngestMethod[]'>
     
 
 
@@ -860,20 +1071,6 @@ export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, '
  * Reference to a field of type 'Float[]'
  */
 export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
-    
-
-
-/**
- * Reference to a field of type 'Int'
- */
-export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
-    
-
-
-/**
- * Reference to a field of type 'Int[]'
- */
-export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
 
 /**
@@ -1028,6 +1225,8 @@ export interface PrismaClientOptionsWithAdapter extends PrismaClientBaseOptions 
 export type PrismaClientOptions = PrismaClientOptionsWithAccelerateUrl | PrismaClientOptionsWithAdapter
 export type GlobalOmitConfig = {
   source?: Prisma.SourceOmit
+  sourceFeed?: Prisma.SourceFeedOmit
+  newsCategory?: Prisma.NewsCategoryOmit
   rawArticle?: Prisma.RawArticleOmit
   article?: Prisma.ArticleOmit
 }

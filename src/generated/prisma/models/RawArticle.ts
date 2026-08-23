@@ -25,7 +25,7 @@ export type AggregateRawArticle = {
 
 export type RawArticleMinAggregateOutputType = {
   id: string | null
-  sourceId: string | null
+  sourceFeedId: string | null
   externalId: string | null
   fetchedAt: Date | null
   processed: boolean | null
@@ -37,7 +37,7 @@ export type RawArticleMinAggregateOutputType = {
 
 export type RawArticleMaxAggregateOutputType = {
   id: string | null
-  sourceId: string | null
+  sourceFeedId: string | null
   externalId: string | null
   fetchedAt: Date | null
   processed: boolean | null
@@ -49,7 +49,7 @@ export type RawArticleMaxAggregateOutputType = {
 
 export type RawArticleCountAggregateOutputType = {
   id: number
-  sourceId: number
+  sourceFeedId: number
   externalId: number
   payload: number
   fetchedAt: number
@@ -64,7 +64,7 @@ export type RawArticleCountAggregateOutputType = {
 
 export type RawArticleMinAggregateInputType = {
   id?: true
-  sourceId?: true
+  sourceFeedId?: true
   externalId?: true
   fetchedAt?: true
   processed?: true
@@ -76,7 +76,7 @@ export type RawArticleMinAggregateInputType = {
 
 export type RawArticleMaxAggregateInputType = {
   id?: true
-  sourceId?: true
+  sourceFeedId?: true
   externalId?: true
   fetchedAt?: true
   processed?: true
@@ -88,7 +88,7 @@ export type RawArticleMaxAggregateInputType = {
 
 export type RawArticleCountAggregateInputType = {
   id?: true
-  sourceId?: true
+  sourceFeedId?: true
   externalId?: true
   payload?: true
   fetchedAt?: true
@@ -174,7 +174,7 @@ export type RawArticleGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
 
 export type RawArticleGroupByOutputType = {
   id: string
-  sourceId: string
+  sourceFeedId: string
   externalId: string
   payload: runtime.JsonValue
   fetchedAt: Date
@@ -208,7 +208,7 @@ export type RawArticleWhereInput = {
   OR?: Prisma.RawArticleWhereInput[]
   NOT?: Prisma.RawArticleWhereInput | Prisma.RawArticleWhereInput[]
   id?: Prisma.StringFilter<"RawArticle"> | string
-  sourceId?: Prisma.StringFilter<"RawArticle"> | string
+  sourceFeedId?: Prisma.StringFilter<"RawArticle"> | string
   externalId?: Prisma.StringFilter<"RawArticle"> | string
   payload?: Prisma.JsonFilter<"RawArticle">
   fetchedAt?: Prisma.DateTimeFilter<"RawArticle"> | Date | string
@@ -217,13 +217,13 @@ export type RawArticleWhereInput = {
   processingError?: Prisma.StringNullableFilter<"RawArticle"> | string | null
   createdAt?: Prisma.DateTimeFilter<"RawArticle"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RawArticle"> | Date | string
-  source?: Prisma.XOR<Prisma.SourceScalarRelationFilter, Prisma.SourceWhereInput>
+  sourceFeed?: Prisma.XOR<Prisma.SourceFeedScalarRelationFilter, Prisma.SourceFeedWhereInput>
   article?: Prisma.XOR<Prisma.ArticleNullableScalarRelationFilter, Prisma.ArticleWhereInput> | null
 }
 
 export type RawArticleOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  sourceId?: Prisma.SortOrder
+  sourceFeedId?: Prisma.SortOrder
   externalId?: Prisma.SortOrder
   payload?: Prisma.SortOrder
   fetchedAt?: Prisma.SortOrder
@@ -232,17 +232,17 @@ export type RawArticleOrderByWithRelationInput = {
   processingError?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  source?: Prisma.SourceOrderByWithRelationInput
+  sourceFeed?: Prisma.SourceFeedOrderByWithRelationInput
   article?: Prisma.ArticleOrderByWithRelationInput
 }
 
 export type RawArticleWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  sourceId_externalId?: Prisma.RawArticleSourceIdExternalIdCompoundUniqueInput
+  sourceFeedId_externalId?: Prisma.RawArticleSourceFeedIdExternalIdCompoundUniqueInput
   AND?: Prisma.RawArticleWhereInput | Prisma.RawArticleWhereInput[]
   OR?: Prisma.RawArticleWhereInput[]
   NOT?: Prisma.RawArticleWhereInput | Prisma.RawArticleWhereInput[]
-  sourceId?: Prisma.StringFilter<"RawArticle"> | string
+  sourceFeedId?: Prisma.StringFilter<"RawArticle"> | string
   externalId?: Prisma.StringFilter<"RawArticle"> | string
   payload?: Prisma.JsonFilter<"RawArticle">
   fetchedAt?: Prisma.DateTimeFilter<"RawArticle"> | Date | string
@@ -251,13 +251,13 @@ export type RawArticleWhereUniqueInput = Prisma.AtLeast<{
   processingError?: Prisma.StringNullableFilter<"RawArticle"> | string | null
   createdAt?: Prisma.DateTimeFilter<"RawArticle"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RawArticle"> | Date | string
-  source?: Prisma.XOR<Prisma.SourceScalarRelationFilter, Prisma.SourceWhereInput>
+  sourceFeed?: Prisma.XOR<Prisma.SourceFeedScalarRelationFilter, Prisma.SourceFeedWhereInput>
   article?: Prisma.XOR<Prisma.ArticleNullableScalarRelationFilter, Prisma.ArticleWhereInput> | null
-}, "id" | "sourceId_externalId">
+}, "id" | "sourceFeedId_externalId">
 
 export type RawArticleOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  sourceId?: Prisma.SortOrder
+  sourceFeedId?: Prisma.SortOrder
   externalId?: Prisma.SortOrder
   payload?: Prisma.SortOrder
   fetchedAt?: Prisma.SortOrder
@@ -276,7 +276,7 @@ export type RawArticleScalarWhereWithAggregatesInput = {
   OR?: Prisma.RawArticleScalarWhereWithAggregatesInput[]
   NOT?: Prisma.RawArticleScalarWhereWithAggregatesInput | Prisma.RawArticleScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"RawArticle"> | string
-  sourceId?: Prisma.StringWithAggregatesFilter<"RawArticle"> | string
+  sourceFeedId?: Prisma.StringWithAggregatesFilter<"RawArticle"> | string
   externalId?: Prisma.StringWithAggregatesFilter<"RawArticle"> | string
   payload?: Prisma.JsonWithAggregatesFilter<"RawArticle">
   fetchedAt?: Prisma.DateTimeWithAggregatesFilter<"RawArticle"> | Date | string
@@ -297,13 +297,13 @@ export type RawArticleCreateInput = {
   processingError?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  source: Prisma.SourceCreateNestedOneWithoutRawArticlesInput
+  sourceFeed: Prisma.SourceFeedCreateNestedOneWithoutRawArticlesInput
   article?: Prisma.ArticleCreateNestedOneWithoutRawArticleInput
 }
 
 export type RawArticleUncheckedCreateInput = {
   id?: string
-  sourceId: string
+  sourceFeedId: string
   externalId: string
   payload: Prisma.JsonNullValueInput | runtime.InputJsonValue
   fetchedAt?: Date | string
@@ -325,13 +325,13 @@ export type RawArticleUpdateInput = {
   processingError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  source?: Prisma.SourceUpdateOneRequiredWithoutRawArticlesNestedInput
+  sourceFeed?: Prisma.SourceFeedUpdateOneRequiredWithoutRawArticlesNestedInput
   article?: Prisma.ArticleUpdateOneWithoutRawArticleNestedInput
 }
 
 export type RawArticleUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  sourceId?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceFeedId?: Prisma.StringFieldUpdateOperationsInput | string
   externalId?: Prisma.StringFieldUpdateOperationsInput | string
   payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   fetchedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -345,7 +345,7 @@ export type RawArticleUncheckedUpdateInput = {
 
 export type RawArticleCreateManyInput = {
   id?: string
-  sourceId: string
+  sourceFeedId: string
   externalId: string
   payload: Prisma.JsonNullValueInput | runtime.InputJsonValue
   fetchedAt?: Date | string
@@ -370,7 +370,7 @@ export type RawArticleUpdateManyMutationInput = {
 
 export type RawArticleUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  sourceId?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceFeedId?: Prisma.StringFieldUpdateOperationsInput | string
   externalId?: Prisma.StringFieldUpdateOperationsInput | string
   payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   fetchedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -391,14 +391,14 @@ export type RawArticleOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type RawArticleSourceIdExternalIdCompoundUniqueInput = {
-  sourceId: string
+export type RawArticleSourceFeedIdExternalIdCompoundUniqueInput = {
+  sourceFeedId: string
   externalId: string
 }
 
 export type RawArticleCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  sourceId?: Prisma.SortOrder
+  sourceFeedId?: Prisma.SortOrder
   externalId?: Prisma.SortOrder
   payload?: Prisma.SortOrder
   fetchedAt?: Prisma.SortOrder
@@ -411,7 +411,7 @@ export type RawArticleCountOrderByAggregateInput = {
 
 export type RawArticleMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  sourceId?: Prisma.SortOrder
+  sourceFeedId?: Prisma.SortOrder
   externalId?: Prisma.SortOrder
   fetchedAt?: Prisma.SortOrder
   processed?: Prisma.SortOrder
@@ -423,7 +423,7 @@ export type RawArticleMaxOrderByAggregateInput = {
 
 export type RawArticleMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  sourceId?: Prisma.SortOrder
+  sourceFeedId?: Prisma.SortOrder
   externalId?: Prisma.SortOrder
   fetchedAt?: Prisma.SortOrder
   processed?: Prisma.SortOrder
@@ -438,50 +438,46 @@ export type RawArticleScalarRelationFilter = {
   isNot?: Prisma.RawArticleWhereInput
 }
 
-export type RawArticleCreateNestedManyWithoutSourceInput = {
-  create?: Prisma.XOR<Prisma.RawArticleCreateWithoutSourceInput, Prisma.RawArticleUncheckedCreateWithoutSourceInput> | Prisma.RawArticleCreateWithoutSourceInput[] | Prisma.RawArticleUncheckedCreateWithoutSourceInput[]
-  connectOrCreate?: Prisma.RawArticleCreateOrConnectWithoutSourceInput | Prisma.RawArticleCreateOrConnectWithoutSourceInput[]
-  createMany?: Prisma.RawArticleCreateManySourceInputEnvelope
+export type RawArticleCreateNestedManyWithoutSourceFeedInput = {
+  create?: Prisma.XOR<Prisma.RawArticleCreateWithoutSourceFeedInput, Prisma.RawArticleUncheckedCreateWithoutSourceFeedInput> | Prisma.RawArticleCreateWithoutSourceFeedInput[] | Prisma.RawArticleUncheckedCreateWithoutSourceFeedInput[]
+  connectOrCreate?: Prisma.RawArticleCreateOrConnectWithoutSourceFeedInput | Prisma.RawArticleCreateOrConnectWithoutSourceFeedInput[]
+  createMany?: Prisma.RawArticleCreateManySourceFeedInputEnvelope
   connect?: Prisma.RawArticleWhereUniqueInput | Prisma.RawArticleWhereUniqueInput[]
 }
 
-export type RawArticleUncheckedCreateNestedManyWithoutSourceInput = {
-  create?: Prisma.XOR<Prisma.RawArticleCreateWithoutSourceInput, Prisma.RawArticleUncheckedCreateWithoutSourceInput> | Prisma.RawArticleCreateWithoutSourceInput[] | Prisma.RawArticleUncheckedCreateWithoutSourceInput[]
-  connectOrCreate?: Prisma.RawArticleCreateOrConnectWithoutSourceInput | Prisma.RawArticleCreateOrConnectWithoutSourceInput[]
-  createMany?: Prisma.RawArticleCreateManySourceInputEnvelope
+export type RawArticleUncheckedCreateNestedManyWithoutSourceFeedInput = {
+  create?: Prisma.XOR<Prisma.RawArticleCreateWithoutSourceFeedInput, Prisma.RawArticleUncheckedCreateWithoutSourceFeedInput> | Prisma.RawArticleCreateWithoutSourceFeedInput[] | Prisma.RawArticleUncheckedCreateWithoutSourceFeedInput[]
+  connectOrCreate?: Prisma.RawArticleCreateOrConnectWithoutSourceFeedInput | Prisma.RawArticleCreateOrConnectWithoutSourceFeedInput[]
+  createMany?: Prisma.RawArticleCreateManySourceFeedInputEnvelope
   connect?: Prisma.RawArticleWhereUniqueInput | Prisma.RawArticleWhereUniqueInput[]
 }
 
-export type RawArticleUpdateManyWithoutSourceNestedInput = {
-  create?: Prisma.XOR<Prisma.RawArticleCreateWithoutSourceInput, Prisma.RawArticleUncheckedCreateWithoutSourceInput> | Prisma.RawArticleCreateWithoutSourceInput[] | Prisma.RawArticleUncheckedCreateWithoutSourceInput[]
-  connectOrCreate?: Prisma.RawArticleCreateOrConnectWithoutSourceInput | Prisma.RawArticleCreateOrConnectWithoutSourceInput[]
-  upsert?: Prisma.RawArticleUpsertWithWhereUniqueWithoutSourceInput | Prisma.RawArticleUpsertWithWhereUniqueWithoutSourceInput[]
-  createMany?: Prisma.RawArticleCreateManySourceInputEnvelope
+export type RawArticleUpdateManyWithoutSourceFeedNestedInput = {
+  create?: Prisma.XOR<Prisma.RawArticleCreateWithoutSourceFeedInput, Prisma.RawArticleUncheckedCreateWithoutSourceFeedInput> | Prisma.RawArticleCreateWithoutSourceFeedInput[] | Prisma.RawArticleUncheckedCreateWithoutSourceFeedInput[]
+  connectOrCreate?: Prisma.RawArticleCreateOrConnectWithoutSourceFeedInput | Prisma.RawArticleCreateOrConnectWithoutSourceFeedInput[]
+  upsert?: Prisma.RawArticleUpsertWithWhereUniqueWithoutSourceFeedInput | Prisma.RawArticleUpsertWithWhereUniqueWithoutSourceFeedInput[]
+  createMany?: Prisma.RawArticleCreateManySourceFeedInputEnvelope
   set?: Prisma.RawArticleWhereUniqueInput | Prisma.RawArticleWhereUniqueInput[]
   disconnect?: Prisma.RawArticleWhereUniqueInput | Prisma.RawArticleWhereUniqueInput[]
   delete?: Prisma.RawArticleWhereUniqueInput | Prisma.RawArticleWhereUniqueInput[]
   connect?: Prisma.RawArticleWhereUniqueInput | Prisma.RawArticleWhereUniqueInput[]
-  update?: Prisma.RawArticleUpdateWithWhereUniqueWithoutSourceInput | Prisma.RawArticleUpdateWithWhereUniqueWithoutSourceInput[]
-  updateMany?: Prisma.RawArticleUpdateManyWithWhereWithoutSourceInput | Prisma.RawArticleUpdateManyWithWhereWithoutSourceInput[]
+  update?: Prisma.RawArticleUpdateWithWhereUniqueWithoutSourceFeedInput | Prisma.RawArticleUpdateWithWhereUniqueWithoutSourceFeedInput[]
+  updateMany?: Prisma.RawArticleUpdateManyWithWhereWithoutSourceFeedInput | Prisma.RawArticleUpdateManyWithWhereWithoutSourceFeedInput[]
   deleteMany?: Prisma.RawArticleScalarWhereInput | Prisma.RawArticleScalarWhereInput[]
 }
 
-export type RawArticleUncheckedUpdateManyWithoutSourceNestedInput = {
-  create?: Prisma.XOR<Prisma.RawArticleCreateWithoutSourceInput, Prisma.RawArticleUncheckedCreateWithoutSourceInput> | Prisma.RawArticleCreateWithoutSourceInput[] | Prisma.RawArticleUncheckedCreateWithoutSourceInput[]
-  connectOrCreate?: Prisma.RawArticleCreateOrConnectWithoutSourceInput | Prisma.RawArticleCreateOrConnectWithoutSourceInput[]
-  upsert?: Prisma.RawArticleUpsertWithWhereUniqueWithoutSourceInput | Prisma.RawArticleUpsertWithWhereUniqueWithoutSourceInput[]
-  createMany?: Prisma.RawArticleCreateManySourceInputEnvelope
+export type RawArticleUncheckedUpdateManyWithoutSourceFeedNestedInput = {
+  create?: Prisma.XOR<Prisma.RawArticleCreateWithoutSourceFeedInput, Prisma.RawArticleUncheckedCreateWithoutSourceFeedInput> | Prisma.RawArticleCreateWithoutSourceFeedInput[] | Prisma.RawArticleUncheckedCreateWithoutSourceFeedInput[]
+  connectOrCreate?: Prisma.RawArticleCreateOrConnectWithoutSourceFeedInput | Prisma.RawArticleCreateOrConnectWithoutSourceFeedInput[]
+  upsert?: Prisma.RawArticleUpsertWithWhereUniqueWithoutSourceFeedInput | Prisma.RawArticleUpsertWithWhereUniqueWithoutSourceFeedInput[]
+  createMany?: Prisma.RawArticleCreateManySourceFeedInputEnvelope
   set?: Prisma.RawArticleWhereUniqueInput | Prisma.RawArticleWhereUniqueInput[]
   disconnect?: Prisma.RawArticleWhereUniqueInput | Prisma.RawArticleWhereUniqueInput[]
   delete?: Prisma.RawArticleWhereUniqueInput | Prisma.RawArticleWhereUniqueInput[]
   connect?: Prisma.RawArticleWhereUniqueInput | Prisma.RawArticleWhereUniqueInput[]
-  update?: Prisma.RawArticleUpdateWithWhereUniqueWithoutSourceInput | Prisma.RawArticleUpdateWithWhereUniqueWithoutSourceInput[]
-  updateMany?: Prisma.RawArticleUpdateManyWithWhereWithoutSourceInput | Prisma.RawArticleUpdateManyWithWhereWithoutSourceInput[]
+  update?: Prisma.RawArticleUpdateWithWhereUniqueWithoutSourceFeedInput | Prisma.RawArticleUpdateWithWhereUniqueWithoutSourceFeedInput[]
+  updateMany?: Prisma.RawArticleUpdateManyWithWhereWithoutSourceFeedInput | Prisma.RawArticleUpdateManyWithWhereWithoutSourceFeedInput[]
   deleteMany?: Prisma.RawArticleScalarWhereInput | Prisma.RawArticleScalarWhereInput[]
-}
-
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
 }
 
 export type RawArticleCreateNestedOneWithoutArticleInput = {
@@ -498,7 +494,7 @@ export type RawArticleUpdateOneRequiredWithoutArticleNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.RawArticleUpdateToOneWithWhereWithoutArticleInput, Prisma.RawArticleUpdateWithoutArticleInput>, Prisma.RawArticleUncheckedUpdateWithoutArticleInput>
 }
 
-export type RawArticleCreateWithoutSourceInput = {
+export type RawArticleCreateWithoutSourceFeedInput = {
   id?: string
   externalId: string
   payload: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -511,7 +507,7 @@ export type RawArticleCreateWithoutSourceInput = {
   article?: Prisma.ArticleCreateNestedOneWithoutRawArticleInput
 }
 
-export type RawArticleUncheckedCreateWithoutSourceInput = {
+export type RawArticleUncheckedCreateWithoutSourceFeedInput = {
   id?: string
   externalId: string
   payload: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -524,30 +520,30 @@ export type RawArticleUncheckedCreateWithoutSourceInput = {
   article?: Prisma.ArticleUncheckedCreateNestedOneWithoutRawArticleInput
 }
 
-export type RawArticleCreateOrConnectWithoutSourceInput = {
+export type RawArticleCreateOrConnectWithoutSourceFeedInput = {
   where: Prisma.RawArticleWhereUniqueInput
-  create: Prisma.XOR<Prisma.RawArticleCreateWithoutSourceInput, Prisma.RawArticleUncheckedCreateWithoutSourceInput>
+  create: Prisma.XOR<Prisma.RawArticleCreateWithoutSourceFeedInput, Prisma.RawArticleUncheckedCreateWithoutSourceFeedInput>
 }
 
-export type RawArticleCreateManySourceInputEnvelope = {
-  data: Prisma.RawArticleCreateManySourceInput | Prisma.RawArticleCreateManySourceInput[]
+export type RawArticleCreateManySourceFeedInputEnvelope = {
+  data: Prisma.RawArticleCreateManySourceFeedInput | Prisma.RawArticleCreateManySourceFeedInput[]
   skipDuplicates?: boolean
 }
 
-export type RawArticleUpsertWithWhereUniqueWithoutSourceInput = {
+export type RawArticleUpsertWithWhereUniqueWithoutSourceFeedInput = {
   where: Prisma.RawArticleWhereUniqueInput
-  update: Prisma.XOR<Prisma.RawArticleUpdateWithoutSourceInput, Prisma.RawArticleUncheckedUpdateWithoutSourceInput>
-  create: Prisma.XOR<Prisma.RawArticleCreateWithoutSourceInput, Prisma.RawArticleUncheckedCreateWithoutSourceInput>
+  update: Prisma.XOR<Prisma.RawArticleUpdateWithoutSourceFeedInput, Prisma.RawArticleUncheckedUpdateWithoutSourceFeedInput>
+  create: Prisma.XOR<Prisma.RawArticleCreateWithoutSourceFeedInput, Prisma.RawArticleUncheckedCreateWithoutSourceFeedInput>
 }
 
-export type RawArticleUpdateWithWhereUniqueWithoutSourceInput = {
+export type RawArticleUpdateWithWhereUniqueWithoutSourceFeedInput = {
   where: Prisma.RawArticleWhereUniqueInput
-  data: Prisma.XOR<Prisma.RawArticleUpdateWithoutSourceInput, Prisma.RawArticleUncheckedUpdateWithoutSourceInput>
+  data: Prisma.XOR<Prisma.RawArticleUpdateWithoutSourceFeedInput, Prisma.RawArticleUncheckedUpdateWithoutSourceFeedInput>
 }
 
-export type RawArticleUpdateManyWithWhereWithoutSourceInput = {
+export type RawArticleUpdateManyWithWhereWithoutSourceFeedInput = {
   where: Prisma.RawArticleScalarWhereInput
-  data: Prisma.XOR<Prisma.RawArticleUpdateManyMutationInput, Prisma.RawArticleUncheckedUpdateManyWithoutSourceInput>
+  data: Prisma.XOR<Prisma.RawArticleUpdateManyMutationInput, Prisma.RawArticleUncheckedUpdateManyWithoutSourceFeedInput>
 }
 
 export type RawArticleScalarWhereInput = {
@@ -555,7 +551,7 @@ export type RawArticleScalarWhereInput = {
   OR?: Prisma.RawArticleScalarWhereInput[]
   NOT?: Prisma.RawArticleScalarWhereInput | Prisma.RawArticleScalarWhereInput[]
   id?: Prisma.StringFilter<"RawArticle"> | string
-  sourceId?: Prisma.StringFilter<"RawArticle"> | string
+  sourceFeedId?: Prisma.StringFilter<"RawArticle"> | string
   externalId?: Prisma.StringFilter<"RawArticle"> | string
   payload?: Prisma.JsonFilter<"RawArticle">
   fetchedAt?: Prisma.DateTimeFilter<"RawArticle"> | Date | string
@@ -576,12 +572,12 @@ export type RawArticleCreateWithoutArticleInput = {
   processingError?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  source: Prisma.SourceCreateNestedOneWithoutRawArticlesInput
+  sourceFeed: Prisma.SourceFeedCreateNestedOneWithoutRawArticlesInput
 }
 
 export type RawArticleUncheckedCreateWithoutArticleInput = {
   id?: string
-  sourceId: string
+  sourceFeedId: string
   externalId: string
   payload: Prisma.JsonNullValueInput | runtime.InputJsonValue
   fetchedAt?: Date | string
@@ -618,12 +614,12 @@ export type RawArticleUpdateWithoutArticleInput = {
   processingError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  source?: Prisma.SourceUpdateOneRequiredWithoutRawArticlesNestedInput
+  sourceFeed?: Prisma.SourceFeedUpdateOneRequiredWithoutRawArticlesNestedInput
 }
 
 export type RawArticleUncheckedUpdateWithoutArticleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  sourceId?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceFeedId?: Prisma.StringFieldUpdateOperationsInput | string
   externalId?: Prisma.StringFieldUpdateOperationsInput | string
   payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   fetchedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -634,7 +630,7 @@ export type RawArticleUncheckedUpdateWithoutArticleInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type RawArticleCreateManySourceInput = {
+export type RawArticleCreateManySourceFeedInput = {
   id?: string
   externalId: string
   payload: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -646,7 +642,7 @@ export type RawArticleCreateManySourceInput = {
   updatedAt?: Date | string
 }
 
-export type RawArticleUpdateWithoutSourceInput = {
+export type RawArticleUpdateWithoutSourceFeedInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   externalId?: Prisma.StringFieldUpdateOperationsInput | string
   payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -659,7 +655,7 @@ export type RawArticleUpdateWithoutSourceInput = {
   article?: Prisma.ArticleUpdateOneWithoutRawArticleNestedInput
 }
 
-export type RawArticleUncheckedUpdateWithoutSourceInput = {
+export type RawArticleUncheckedUpdateWithoutSourceFeedInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   externalId?: Prisma.StringFieldUpdateOperationsInput | string
   payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -672,7 +668,7 @@ export type RawArticleUncheckedUpdateWithoutSourceInput = {
   article?: Prisma.ArticleUncheckedUpdateOneWithoutRawArticleNestedInput
 }
 
-export type RawArticleUncheckedUpdateManyWithoutSourceInput = {
+export type RawArticleUncheckedUpdateManyWithoutSourceFeedInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   externalId?: Prisma.StringFieldUpdateOperationsInput | string
   payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -688,7 +684,7 @@ export type RawArticleUncheckedUpdateManyWithoutSourceInput = {
 
 export type RawArticleSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  sourceId?: boolean
+  sourceFeedId?: boolean
   externalId?: boolean
   payload?: boolean
   fetchedAt?: boolean
@@ -697,13 +693,13 @@ export type RawArticleSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   processingError?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  source?: boolean | Prisma.SourceDefaultArgs<ExtArgs>
+  sourceFeed?: boolean | Prisma.SourceFeedDefaultArgs<ExtArgs>
   article?: boolean | Prisma.RawArticle$articleArgs<ExtArgs>
 }, ExtArgs["result"]["rawArticle"]>
 
 export type RawArticleSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  sourceId?: boolean
+  sourceFeedId?: boolean
   externalId?: boolean
   payload?: boolean
   fetchedAt?: boolean
@@ -712,12 +708,12 @@ export type RawArticleSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   processingError?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  source?: boolean | Prisma.SourceDefaultArgs<ExtArgs>
+  sourceFeed?: boolean | Prisma.SourceFeedDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["rawArticle"]>
 
 export type RawArticleSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  sourceId?: boolean
+  sourceFeedId?: boolean
   externalId?: boolean
   payload?: boolean
   fetchedAt?: boolean
@@ -726,12 +722,12 @@ export type RawArticleSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   processingError?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  source?: boolean | Prisma.SourceDefaultArgs<ExtArgs>
+  sourceFeed?: boolean | Prisma.SourceFeedDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["rawArticle"]>
 
 export type RawArticleSelectScalar = {
   id?: boolean
-  sourceId?: boolean
+  sourceFeedId?: boolean
   externalId?: boolean
   payload?: boolean
   fetchedAt?: boolean
@@ -742,27 +738,27 @@ export type RawArticleSelectScalar = {
   updatedAt?: boolean
 }
 
-export type RawArticleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sourceId" | "externalId" | "payload" | "fetchedAt" | "processed" | "processedAt" | "processingError" | "createdAt" | "updatedAt", ExtArgs["result"]["rawArticle"]>
+export type RawArticleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sourceFeedId" | "externalId" | "payload" | "fetchedAt" | "processed" | "processedAt" | "processingError" | "createdAt" | "updatedAt", ExtArgs["result"]["rawArticle"]>
 export type RawArticleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  source?: boolean | Prisma.SourceDefaultArgs<ExtArgs>
+  sourceFeed?: boolean | Prisma.SourceFeedDefaultArgs<ExtArgs>
   article?: boolean | Prisma.RawArticle$articleArgs<ExtArgs>
 }
 export type RawArticleIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  source?: boolean | Prisma.SourceDefaultArgs<ExtArgs>
+  sourceFeed?: boolean | Prisma.SourceFeedDefaultArgs<ExtArgs>
 }
 export type RawArticleIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  source?: boolean | Prisma.SourceDefaultArgs<ExtArgs>
+  sourceFeed?: boolean | Prisma.SourceFeedDefaultArgs<ExtArgs>
 }
 
 export type $RawArticlePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "RawArticle"
   objects: {
-    source: Prisma.$SourcePayload<ExtArgs>
+    sourceFeed: Prisma.$SourceFeedPayload<ExtArgs>
     article: Prisma.$ArticlePayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    sourceId: string
+    sourceFeedId: string
     externalId: string
     payload: runtime.JsonValue
     fetchedAt: Date
@@ -1165,7 +1161,7 @@ readonly fields: RawArticleFieldRefs;
  */
 export interface Prisma__RawArticleClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  source<T extends Prisma.SourceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SourceDefaultArgs<ExtArgs>>): Prisma.Prisma__SourceClient<runtime.Types.Result.GetResult<Prisma.$SourcePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  sourceFeed<T extends Prisma.SourceFeedDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SourceFeedDefaultArgs<ExtArgs>>): Prisma.Prisma__SourceFeedClient<runtime.Types.Result.GetResult<Prisma.$SourceFeedPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   article<T extends Prisma.RawArticle$articleArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RawArticle$articleArgs<ExtArgs>>): Prisma.Prisma__ArticleClient<runtime.Types.Result.GetResult<Prisma.$ArticlePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1197,7 +1193,7 @@ export interface Prisma__RawArticleClient<T, Null = never, ExtArgs extends runti
  */
 export interface RawArticleFieldRefs {
   readonly id: Prisma.FieldRef<"RawArticle", 'String'>
-  readonly sourceId: Prisma.FieldRef<"RawArticle", 'String'>
+  readonly sourceFeedId: Prisma.FieldRef<"RawArticle", 'String'>
   readonly externalId: Prisma.FieldRef<"RawArticle", 'String'>
   readonly payload: Prisma.FieldRef<"RawArticle", 'Json'>
   readonly fetchedAt: Prisma.FieldRef<"RawArticle", 'DateTime'>
