@@ -1,45 +1,103 @@
 import 'dotenv/config';
+import { readdir, readFile } from 'node:fs/promises';
+import path from 'node:path';
 import { SourceType } from '../src/generated/prisma/enums';
 import { createPrismaClient } from '../src/prisma/create-prisma-pg-adapter';
 
 const prisma = createPrismaClient(process.env.DATABASE_URL!);
+const FEEDS_DIR = path.join(__dirname, '..', 'data', 'feeds');
 
-const HINDU_FEED_URL =
-  'https://www.thehindu.com/news/cities/Delhi/feeder/default.rss';
+type FeedSourceFile = {
+  name: string;
+  slug: string;
+  homepageUrl: string;
+  trustTier?: number;
+  urls: string[];
+};
+
+function rawCategoryLabelFromUrl(url: string): string | null {
+  const { pathname } = new URL(url);
+  const segments = pathname.split('/').filter(Boolean);
+  const ignored = new Set([
+    'rss',
+    'feed',
+    'feeder',
+    'default.rss',
+    'videos-rss-feed',
+  ]);
+  const parts: string[] = [];
+
+  for (const segment of segments) {
+    if (ignored.has(segment)) {
+      continue;
+    }
+    if (segment.endsWith('.xml')) {
+      parts.push(segment.slice(0, -'.xml'.length));
+      continue;
+    }
+    parts.push(segment);
+  }
+
+  return parts.length > 0 ? parts.join('/') : null;
+}
+
+async function loadFeedSourceFiles(): Promise<FeedSourceFile[]> {
+  const entries = await readdir(FEEDS_DIR);
+  const files = entries.filter((file) => file.endsWith('.json'));
+  const sources: FeedSourceFile[] = [];
+
+  for (const file of files) {
+    const raw = await readFile(path.join(FEEDS_DIR, file), 'utf8');
+    sources.push(JSON.parse(raw) as FeedSourceFile);
+  }
+
+  return sources;
+}
+
+async function upsertFeeds(sourceId: string, urls: string[]) {
+  for (const url of urls) {
+    await prisma.sourceFeed.upsert({
+      where: { url },
+      update: {
+        sourceId,
+        isActive: true,
+        language: 'en',
+        rawCategoryLabel: rawCategoryLabelFromUrl(url),
+      },
+      create: {
+        sourceId,
+        url,
+        language: 'en',
+        rawCategoryLabel: rawCategoryLabelFromUrl(url),
+      },
+    });
+  }
+}
 
 async function main() {
-  const source = await prisma.source.upsert({
-    where: {
-      slug: 'the-hindu-delhi',
-    },
-    update: {
-      homepageUrl: 'https://www.thehindu.com',
-      trustTier: 2,
-      isActive: true,
-    },
-    create: {
-      name: 'The Hindu - Delhi',
-      slug: 'the-hindu-delhi',
-      type: SourceType.NEWS,
-      homepageUrl: 'https://www.thehindu.com',
-      trustTier: 2,
-    },
-  });
+  const feedSources = await loadFeedSourceFiles();
 
-  await prisma.sourceFeed.upsert({
-    where: { url: HINDU_FEED_URL },
-    update: {
-      isActive: true,
-      sourceId: source.id,
-    },
-    create: {
-      sourceId: source.id,
-      url: HINDU_FEED_URL,
-      language: 'en',
-    },
-  });
+  for (const feedSource of feedSources) {
+    const source = await prisma.source.upsert({
+      where: { slug: feedSource.slug },
+      update: {
+        name: feedSource.name,
+        homepageUrl: feedSource.homepageUrl,
+        trustTier: feedSource.trustTier ?? 2,
+        isActive: true,
+      },
+      create: {
+        name: feedSource.name,
+        slug: feedSource.slug,
+        type: SourceType.NEWS,
+        homepageUrl: feedSource.homepageUrl,
+        trustTier: feedSource.trustTier ?? 2,
+      },
+    });
 
-  console.log('Seeded The Hindu - Delhi source and feed');
+    await upsertFeeds(source.id, feedSource.urls);
+    console.log(`Seeded ${feedSource.name} (${feedSource.urls.length} feeds)`);
+  }
 }
 
 main()
