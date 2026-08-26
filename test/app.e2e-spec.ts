@@ -16,10 +16,11 @@ describe('SAHAY API (e2e)', () => {
     source: {
       findMany: jest.fn().mockResolvedValue([{ id: 'source-1' }]),
     },
-    article: {
+    contentItem: {
       findMany: jest.fn().mockResolvedValue([]),
-      count: jest.fn().mockResolvedValue(0),
-      findUnique: jest.fn().mockResolvedValue(null),
+    },
+    newsCategory: {
+      findMany: jest.fn().mockResolvedValue([]),
     },
     $transaction: jest.fn().mockImplementation(async (ops) => {
       if (Array.isArray(ops)) {
@@ -67,24 +68,18 @@ describe('SAHAY API (e2e)', () => {
       });
   });
 
-  it('/articles (GET)', () => {
+  it('/content (GET)', () => {
     return request(app.getHttpServer())
-      .get('/articles')
+      .get('/content')
       .expect(200)
       .expect((res) => {
         expect(res.body.items).toEqual([]);
-        expect(res.body.total).toBe(0);
+        expect(res.body.nextCursor).toBeNull();
       });
   });
 
-  it('/articles/:id (GET) returns 404', () => {
-    return request(app.getHttpServer())
-      .get('/articles/nonexistent')
-      .expect(404);
-  });
-
-  it('/articles (GET) rejects invalid limit', () => {
-    return request(app.getHttpServer()).get('/articles?limit=200').expect(400);
+  it('/content (GET) rejects invalid limit', () => {
+    return request(app.getHttpServer()).get('/content?limit=200').expect(400);
   });
 
   it('/ingestion/trigger (POST) enqueues jobs in development', () => {

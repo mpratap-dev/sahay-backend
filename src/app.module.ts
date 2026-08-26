@@ -4,7 +4,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { LoggerModule } from 'nestjs-pino';
-import { ArticlesModule } from './articles/articles.module';
+import { ContentModule } from './content/content.module';
 import { validateEnv } from './config/env.validation';
 import { HealthModule } from './health/health.module';
 import { IngestionModule } from './ingestion/ingestion.module';
@@ -40,7 +40,7 @@ import { SourcesModule } from './sources/sources.module';
     SourcesModule,
     HealthModule,
     IngestionModule.register(),
-    ArticlesModule,
+    ContentModule,
   ],
 })
 export class AppModule {}

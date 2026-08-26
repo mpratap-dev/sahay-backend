@@ -403,6 +403,7 @@ export const ModelName = {
   Topic: 'Topic',
   ArticleTopic: 'ArticleTopic',
   RawArticle: 'RawArticle',
+  ContentItem: 'ContentItem',
   Article: 'Article'
 } as const
 
@@ -419,7 +420,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "source" | "sourceFeed" | "newsCategory" | "topic" | "articleTopic" | "rawArticle" | "article"
+    modelProps: "source" | "sourceFeed" | "newsCategory" | "topic" | "articleTopic" | "rawArticle" | "contentItem" | "article"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -867,6 +868,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ContentItem: {
+      payload: Prisma.$ContentItemPayload<ExtArgs>
+      fields: Prisma.ContentItemFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ContentItemFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentItemPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ContentItemFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentItemPayload>
+        }
+        findFirst: {
+          args: Prisma.ContentItemFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentItemPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ContentItemFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentItemPayload>
+        }
+        findMany: {
+          args: Prisma.ContentItemFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentItemPayload>[]
+        }
+        create: {
+          args: Prisma.ContentItemCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentItemPayload>
+        }
+        createMany: {
+          args: Prisma.ContentItemCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ContentItemCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentItemPayload>[]
+        }
+        delete: {
+          args: Prisma.ContentItemDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentItemPayload>
+        }
+        update: {
+          args: Prisma.ContentItemUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentItemPayload>
+        }
+        deleteMany: {
+          args: Prisma.ContentItemDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ContentItemUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ContentItemUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentItemPayload>[]
+        }
+        upsert: {
+          args: Prisma.ContentItemUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentItemPayload>
+        }
+        aggregate: {
+          args: Prisma.ContentItemAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateContentItem>
+        }
+        groupBy: {
+          args: Prisma.ContentItemGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ContentItemGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ContentItemCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ContentItemCountAggregateOutputType> | number
+        }
+      }
+    }
     Article: {
       payload: Prisma.$ArticlePayload<ExtArgs>
       fields: Prisma.ArticleFieldRefs
@@ -1068,24 +1143,36 @@ export const RawArticleScalarFieldEnum = {
 export type RawArticleScalarFieldEnum = (typeof RawArticleScalarFieldEnum)[keyof typeof RawArticleScalarFieldEnum]
 
 
-export const ArticleScalarFieldEnum = {
+export const ContentItemScalarFieldEnum = {
   id: 'id',
-  rawArticleId: 'rawArticleId',
-  sourceId: 'sourceId',
+  type: 'type',
+  status: 'status',
   title: 'title',
   summary: 'summary',
-  url: 'url',
-  imageUrl: 'imageUrl',
   language: 'language',
   languageConfidence: 'languageConfidence',
   publishedAt: 'publishedAt',
-  fetchedAt: 'fetchedAt',
   categoryId: 'categoryId',
   entities: 'entities',
   urgency: 'urgency',
   confidence: 'confidence',
   titleFingerprint: 'titleFingerprint',
-  canonicalArticleId: 'canonicalArticleId',
+  canonicalContentId: 'canonicalContentId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ContentItemScalarFieldEnum = (typeof ContentItemScalarFieldEnum)[keyof typeof ContentItemScalarFieldEnum]
+
+
+export const ArticleScalarFieldEnum = {
+  id: 'id',
+  contentItemId: 'contentItemId',
+  rawArticleId: 'rawArticleId',
+  sourceId: 'sourceId',
+  url: 'url',
+  imageUrl: 'imageUrl',
+  fetchedAt: 'fetchedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1265,6 +1352,34 @@ export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'J
 export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
+
+/**
+ * Reference to a field of type 'ContentType'
+ */
+export type EnumContentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ContentType'>
+    
+
+
+/**
+ * Reference to a field of type 'ContentType[]'
+ */
+export type ListEnumContentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ContentType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'ContentStatus'
+ */
+export type EnumContentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ContentStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ContentStatus[]'
+ */
+export type ListEnumContentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ContentStatus[]'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -1422,6 +1537,7 @@ export type GlobalOmitConfig = {
   topic?: Prisma.TopicOmit
   articleTopic?: Prisma.ArticleTopicOmit
   rawArticle?: Prisma.RawArticleOmit
+  contentItem?: Prisma.ContentItemOmit
   article?: Prisma.ArticleOmit
 }
 

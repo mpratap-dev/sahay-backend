@@ -31,6 +31,19 @@ enum ArticleTopicSource {
   MANUAL
 }
 
+enum ContentType {
+  NEWS_ARTICLE
+  CIVIC_ISSUE
+  ALERT
+}
+
+enum ContentStatus {
+  PUBLISHED
+  DRAFT
+  ARCHIVED
+  FLAGGED
+}
+
 // Publisher (one row per outlet). Pollable endpoints live on SourceFeed.
 model Source {
   id          String     @id @default(cuid())
@@ -78,6 +91,7 @@ model SourceFeed {
   @@index([isActive, fetchIntervalSeconds])
 }
 
+// TODO(R6): rename to Category when civic issues and alerts land.
 model NewsCategory {
   id       String         @id @default(cuid())
   name     String
@@ -86,8 +100,8 @@ model NewsCategory {
   parent   NewsCategory?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
   children NewsCategory[] @relation("CategoryHierarchy")
 
-  feeds    SourceFeed[]
-  articles Article[]
+  feeds        SourceFeed[]
+  contentItems ContentItem[]
 }
 
 // SAHAY-controlled interest taxonomy (not publisher section labels).
@@ -141,21 +155,17 @@ model RawArticle {
   @@index([sourceFeedId, fetchedAt])
 }
 
-model Article {
-  id           String     @id @default(cuid())
-  rawArticleId String     @unique
-  rawArticle   RawArticle @relation(fields: [rawArticleId], references: [id])
-  sourceId     String
-  source       Source     @relation(fields: [sourceId], references: [id])
+model ContentItem {
+  id       String        @id @default(cuid())
+  type     ContentType   @default(NEWS_ARTICLE)
+  status   ContentStatus @default(PUBLISHED)
 
-  title       String
-  summary     String?
-  url         String
-  imageUrl    String?
-  language           String  @default("en") // BCP-47-ish code; English-first, more locales later
+  title   String
+  summary String?
+
+  language           String    @default("en")
   languageConfidence Float?
-  publishedAt DateTime?
-  fetchedAt   DateTime @default(now())
+  publishedAt        DateTime?
 
   categoryId String?
   category   NewsCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
@@ -165,18 +175,39 @@ model Article {
   confidence Float?
 
   titleFingerprint   String?
-  canonicalArticleId String?
-  canonicalArticle   Article?  @relation("ArticleDuplicates", fields: [canonicalArticleId], references: [id], onDelete: SetNull)
-  duplicates         Article[] @relation("ArticleDuplicates")
+  canonicalContentId String?
+  canonicalContent   ContentItem?  @relation("ContentDuplicates", fields: [canonicalContentId], references: [id], onDelete: SetNull)
+  duplicates         ContentItem[] @relation("ContentDuplicates")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  article Article?
+
+  @@index([status, type, publishedAt])
+  @@index([categoryId])
+  @@index([titleFingerprint, publishedAt])
+  @@index([canonicalContentId])
+}
+
+model Article {
+  id            String      @id @default(cuid())
+  contentItemId String      @unique
+  contentItem   ContentItem @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+
+  rawArticleId String     @unique
+  rawArticle   RawArticle @relation(fields: [rawArticleId], references: [id])
+  sourceId     String
+  source       Source     @relation(fields: [sourceId], references: [id])
+
+  url       String
+  imageUrl  String?
+  fetchedAt DateTime @default(now())
 
   articleTopics ArticleTopic[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([publishedAt])
   @@index([sourceId])
-  @@index([categoryId])
-  @@index([titleFingerprint, publishedAt])
-  @@index([canonicalArticleId])
 }

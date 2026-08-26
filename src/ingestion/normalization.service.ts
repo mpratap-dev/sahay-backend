@@ -79,7 +79,7 @@ export class NormalizationService {
         rawArticle.sourceFeed.rawCategoryLabel,
       );
 
-      let createdArticleId: string | null = null;
+      let createdContentItemId: string | null = null;
 
       await this.prisma.$transaction(async (tx) => {
         const existingArticle = await tx.article.findUnique({
@@ -95,33 +95,38 @@ export class NormalizationService {
                 })
               : [];
 
-          const created = await tx.article.create({
+          const created = await tx.contentItem.create({
             data: {
-              rawArticleId: rawArticle.id,
-              sourceId: rawArticle.sourceFeed.sourceId,
+              type: 'NEWS_ARTICLE',
               title: normalized.title,
               summary: normalized.summary,
-              url: normalized.url,
-              imageUrl: normalized.imageUrl,
               language: normalized.language,
               languageConfidence: normalized.languageConfidence,
               publishedAt,
-              fetchedAt: rawArticle.fetchedAt,
               titleFingerprint: fingerprint,
               categoryId: rawArticle.sourceFeed.categoryId,
-              articleTopics:
-                topics.length > 0
-                  ? {
-                      create: topics.map((topic) => ({
-                        topicId: topic.id,
-                        source: ArticleTopicSource.FEED_CATEGORY,
-                        confidence: 1,
-                      })),
-                    }
-                  : undefined,
+              article: {
+                create: {
+                  rawArticleId: rawArticle.id,
+                  sourceId: rawArticle.sourceFeed.sourceId,
+                  url: normalized.url,
+                  imageUrl: normalized.imageUrl,
+                  fetchedAt: rawArticle.fetchedAt,
+                  articleTopics:
+                    topics.length > 0
+                      ? {
+                          create: topics.map((topic) => ({
+                            topicId: topic.id,
+                            source: ArticleTopicSource.FEED_CATEGORY,
+                            confidence: 1,
+                          })),
+                        }
+                      : undefined,
+                },
+              },
             },
           });
-          createdArticleId = created.id;
+          createdContentItemId = created.id;
         }
 
         await tx.rawArticle.update({
@@ -134,8 +139,8 @@ export class NormalizationService {
         });
       });
 
-      if (createdArticleId) {
-        await this.articleDedupService.linkAfterCreate(createdArticleId);
+      if (createdContentItemId) {
+        await this.articleDedupService.linkAfterCreate(createdContentItemId);
       }
 
       return true;

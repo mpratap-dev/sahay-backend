@@ -177,7 +177,7 @@ export type NewsCategoryWhereInput = {
   parent?: Prisma.XOR<Prisma.NewsCategoryNullableScalarRelationFilter, Prisma.NewsCategoryWhereInput> | null
   children?: Prisma.NewsCategoryListRelationFilter
   feeds?: Prisma.SourceFeedListRelationFilter
-  articles?: Prisma.ArticleListRelationFilter
+  contentItems?: Prisma.ContentItemListRelationFilter
 }
 
 export type NewsCategoryOrderByWithRelationInput = {
@@ -188,7 +188,7 @@ export type NewsCategoryOrderByWithRelationInput = {
   parent?: Prisma.NewsCategoryOrderByWithRelationInput
   children?: Prisma.NewsCategoryOrderByRelationAggregateInput
   feeds?: Prisma.SourceFeedOrderByRelationAggregateInput
-  articles?: Prisma.ArticleOrderByRelationAggregateInput
+  contentItems?: Prisma.ContentItemOrderByRelationAggregateInput
 }
 
 export type NewsCategoryWhereUniqueInput = Prisma.AtLeast<{
@@ -202,7 +202,7 @@ export type NewsCategoryWhereUniqueInput = Prisma.AtLeast<{
   parent?: Prisma.XOR<Prisma.NewsCategoryNullableScalarRelationFilter, Prisma.NewsCategoryWhereInput> | null
   children?: Prisma.NewsCategoryListRelationFilter
   feeds?: Prisma.SourceFeedListRelationFilter
-  articles?: Prisma.ArticleListRelationFilter
+  contentItems?: Prisma.ContentItemListRelationFilter
 }, "id" | "slug">
 
 export type NewsCategoryOrderByWithAggregationInput = {
@@ -232,7 +232,7 @@ export type NewsCategoryCreateInput = {
   parent?: Prisma.NewsCategoryCreateNestedOneWithoutChildrenInput
   children?: Prisma.NewsCategoryCreateNestedManyWithoutParentInput
   feeds?: Prisma.SourceFeedCreateNestedManyWithoutCategoryInput
-  articles?: Prisma.ArticleCreateNestedManyWithoutCategoryInput
+  contentItems?: Prisma.ContentItemCreateNestedManyWithoutCategoryInput
 }
 
 export type NewsCategoryUncheckedCreateInput = {
@@ -242,7 +242,7 @@ export type NewsCategoryUncheckedCreateInput = {
   parentId?: string | null
   children?: Prisma.NewsCategoryUncheckedCreateNestedManyWithoutParentInput
   feeds?: Prisma.SourceFeedUncheckedCreateNestedManyWithoutCategoryInput
-  articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutCategoryInput
+  contentItems?: Prisma.ContentItemUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type NewsCategoryUpdateInput = {
@@ -252,7 +252,7 @@ export type NewsCategoryUpdateInput = {
   parent?: Prisma.NewsCategoryUpdateOneWithoutChildrenNestedInput
   children?: Prisma.NewsCategoryUpdateManyWithoutParentNestedInput
   feeds?: Prisma.SourceFeedUpdateManyWithoutCategoryNestedInput
-  articles?: Prisma.ArticleUpdateManyWithoutCategoryNestedInput
+  contentItems?: Prisma.ContentItemUpdateManyWithoutCategoryNestedInput
 }
 
 export type NewsCategoryUncheckedUpdateInput = {
@@ -262,7 +262,7 @@ export type NewsCategoryUncheckedUpdateInput = {
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   children?: Prisma.NewsCategoryUncheckedUpdateManyWithoutParentNestedInput
   feeds?: Prisma.SourceFeedUncheckedUpdateManyWithoutCategoryNestedInput
-  articles?: Prisma.ArticleUncheckedUpdateManyWithoutCategoryNestedInput
+  contentItems?: Prisma.ContentItemUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type NewsCategoryCreateManyInput = {
@@ -395,20 +395,20 @@ export type NewsCategoryUncheckedUpdateManyWithoutParentNestedInput = {
   deleteMany?: Prisma.NewsCategoryScalarWhereInput | Prisma.NewsCategoryScalarWhereInput[]
 }
 
-export type NewsCategoryCreateNestedOneWithoutArticlesInput = {
-  create?: Prisma.XOR<Prisma.NewsCategoryCreateWithoutArticlesInput, Prisma.NewsCategoryUncheckedCreateWithoutArticlesInput>
-  connectOrCreate?: Prisma.NewsCategoryCreateOrConnectWithoutArticlesInput
+export type NewsCategoryCreateNestedOneWithoutContentItemsInput = {
+  create?: Prisma.XOR<Prisma.NewsCategoryCreateWithoutContentItemsInput, Prisma.NewsCategoryUncheckedCreateWithoutContentItemsInput>
+  connectOrCreate?: Prisma.NewsCategoryCreateOrConnectWithoutContentItemsInput
   connect?: Prisma.NewsCategoryWhereUniqueInput
 }
 
-export type NewsCategoryUpdateOneWithoutArticlesNestedInput = {
-  create?: Prisma.XOR<Prisma.NewsCategoryCreateWithoutArticlesInput, Prisma.NewsCategoryUncheckedCreateWithoutArticlesInput>
-  connectOrCreate?: Prisma.NewsCategoryCreateOrConnectWithoutArticlesInput
-  upsert?: Prisma.NewsCategoryUpsertWithoutArticlesInput
+export type NewsCategoryUpdateOneWithoutContentItemsNestedInput = {
+  create?: Prisma.XOR<Prisma.NewsCategoryCreateWithoutContentItemsInput, Prisma.NewsCategoryUncheckedCreateWithoutContentItemsInput>
+  connectOrCreate?: Prisma.NewsCategoryCreateOrConnectWithoutContentItemsInput
+  upsert?: Prisma.NewsCategoryUpsertWithoutContentItemsInput
   disconnect?: Prisma.NewsCategoryWhereInput | boolean
   delete?: Prisma.NewsCategoryWhereInput | boolean
   connect?: Prisma.NewsCategoryWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.NewsCategoryUpdateToOneWithWhereWithoutArticlesInput, Prisma.NewsCategoryUpdateWithoutArticlesInput>, Prisma.NewsCategoryUncheckedUpdateWithoutArticlesInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.NewsCategoryUpdateToOneWithWhereWithoutContentItemsInput, Prisma.NewsCategoryUpdateWithoutContentItemsInput>, Prisma.NewsCategoryUncheckedUpdateWithoutContentItemsInput>
 }
 
 export type NewsCategoryCreateWithoutFeedsInput = {
@@ -417,7 +417,7 @@ export type NewsCategoryCreateWithoutFeedsInput = {
   slug: string
   parent?: Prisma.NewsCategoryCreateNestedOneWithoutChildrenInput
   children?: Prisma.NewsCategoryCreateNestedManyWithoutParentInput
-  articles?: Prisma.ArticleCreateNestedManyWithoutCategoryInput
+  contentItems?: Prisma.ContentItemCreateNestedManyWithoutCategoryInput
 }
 
 export type NewsCategoryUncheckedCreateWithoutFeedsInput = {
@@ -426,7 +426,7 @@ export type NewsCategoryUncheckedCreateWithoutFeedsInput = {
   slug: string
   parentId?: string | null
   children?: Prisma.NewsCategoryUncheckedCreateNestedManyWithoutParentInput
-  articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutCategoryInput
+  contentItems?: Prisma.ContentItemUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type NewsCategoryCreateOrConnectWithoutFeedsInput = {
@@ -451,7 +451,7 @@ export type NewsCategoryUpdateWithoutFeedsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   parent?: Prisma.NewsCategoryUpdateOneWithoutChildrenNestedInput
   children?: Prisma.NewsCategoryUpdateManyWithoutParentNestedInput
-  articles?: Prisma.ArticleUpdateManyWithoutCategoryNestedInput
+  contentItems?: Prisma.ContentItemUpdateManyWithoutCategoryNestedInput
 }
 
 export type NewsCategoryUncheckedUpdateWithoutFeedsInput = {
@@ -460,7 +460,7 @@ export type NewsCategoryUncheckedUpdateWithoutFeedsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   children?: Prisma.NewsCategoryUncheckedUpdateManyWithoutParentNestedInput
-  articles?: Prisma.ArticleUncheckedUpdateManyWithoutCategoryNestedInput
+  contentItems?: Prisma.ContentItemUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type NewsCategoryCreateWithoutChildrenInput = {
@@ -469,7 +469,7 @@ export type NewsCategoryCreateWithoutChildrenInput = {
   slug: string
   parent?: Prisma.NewsCategoryCreateNestedOneWithoutChildrenInput
   feeds?: Prisma.SourceFeedCreateNestedManyWithoutCategoryInput
-  articles?: Prisma.ArticleCreateNestedManyWithoutCategoryInput
+  contentItems?: Prisma.ContentItemCreateNestedManyWithoutCategoryInput
 }
 
 export type NewsCategoryUncheckedCreateWithoutChildrenInput = {
@@ -478,7 +478,7 @@ export type NewsCategoryUncheckedCreateWithoutChildrenInput = {
   slug: string
   parentId?: string | null
   feeds?: Prisma.SourceFeedUncheckedCreateNestedManyWithoutCategoryInput
-  articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutCategoryInput
+  contentItems?: Prisma.ContentItemUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type NewsCategoryCreateOrConnectWithoutChildrenInput = {
@@ -492,7 +492,7 @@ export type NewsCategoryCreateWithoutParentInput = {
   slug: string
   children?: Prisma.NewsCategoryCreateNestedManyWithoutParentInput
   feeds?: Prisma.SourceFeedCreateNestedManyWithoutCategoryInput
-  articles?: Prisma.ArticleCreateNestedManyWithoutCategoryInput
+  contentItems?: Prisma.ContentItemCreateNestedManyWithoutCategoryInput
 }
 
 export type NewsCategoryUncheckedCreateWithoutParentInput = {
@@ -501,7 +501,7 @@ export type NewsCategoryUncheckedCreateWithoutParentInput = {
   slug: string
   children?: Prisma.NewsCategoryUncheckedCreateNestedManyWithoutParentInput
   feeds?: Prisma.SourceFeedUncheckedCreateNestedManyWithoutCategoryInput
-  articles?: Prisma.ArticleUncheckedCreateNestedManyWithoutCategoryInput
+  contentItems?: Prisma.ContentItemUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type NewsCategoryCreateOrConnectWithoutParentInput = {
@@ -531,7 +531,7 @@ export type NewsCategoryUpdateWithoutChildrenInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   parent?: Prisma.NewsCategoryUpdateOneWithoutChildrenNestedInput
   feeds?: Prisma.SourceFeedUpdateManyWithoutCategoryNestedInput
-  articles?: Prisma.ArticleUpdateManyWithoutCategoryNestedInput
+  contentItems?: Prisma.ContentItemUpdateManyWithoutCategoryNestedInput
 }
 
 export type NewsCategoryUncheckedUpdateWithoutChildrenInput = {
@@ -540,7 +540,7 @@ export type NewsCategoryUncheckedUpdateWithoutChildrenInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   feeds?: Prisma.SourceFeedUncheckedUpdateManyWithoutCategoryNestedInput
-  articles?: Prisma.ArticleUncheckedUpdateManyWithoutCategoryNestedInput
+  contentItems?: Prisma.ContentItemUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type NewsCategoryUpsertWithWhereUniqueWithoutParentInput = {
@@ -569,7 +569,7 @@ export type NewsCategoryScalarWhereInput = {
   parentId?: Prisma.StringNullableFilter<"NewsCategory"> | string | null
 }
 
-export type NewsCategoryCreateWithoutArticlesInput = {
+export type NewsCategoryCreateWithoutContentItemsInput = {
   id?: string
   name: string
   slug: string
@@ -578,7 +578,7 @@ export type NewsCategoryCreateWithoutArticlesInput = {
   feeds?: Prisma.SourceFeedCreateNestedManyWithoutCategoryInput
 }
 
-export type NewsCategoryUncheckedCreateWithoutArticlesInput = {
+export type NewsCategoryUncheckedCreateWithoutContentItemsInput = {
   id?: string
   name: string
   slug: string
@@ -587,23 +587,23 @@ export type NewsCategoryUncheckedCreateWithoutArticlesInput = {
   feeds?: Prisma.SourceFeedUncheckedCreateNestedManyWithoutCategoryInput
 }
 
-export type NewsCategoryCreateOrConnectWithoutArticlesInput = {
+export type NewsCategoryCreateOrConnectWithoutContentItemsInput = {
   where: Prisma.NewsCategoryWhereUniqueInput
-  create: Prisma.XOR<Prisma.NewsCategoryCreateWithoutArticlesInput, Prisma.NewsCategoryUncheckedCreateWithoutArticlesInput>
+  create: Prisma.XOR<Prisma.NewsCategoryCreateWithoutContentItemsInput, Prisma.NewsCategoryUncheckedCreateWithoutContentItemsInput>
 }
 
-export type NewsCategoryUpsertWithoutArticlesInput = {
-  update: Prisma.XOR<Prisma.NewsCategoryUpdateWithoutArticlesInput, Prisma.NewsCategoryUncheckedUpdateWithoutArticlesInput>
-  create: Prisma.XOR<Prisma.NewsCategoryCreateWithoutArticlesInput, Prisma.NewsCategoryUncheckedCreateWithoutArticlesInput>
+export type NewsCategoryUpsertWithoutContentItemsInput = {
+  update: Prisma.XOR<Prisma.NewsCategoryUpdateWithoutContentItemsInput, Prisma.NewsCategoryUncheckedUpdateWithoutContentItemsInput>
+  create: Prisma.XOR<Prisma.NewsCategoryCreateWithoutContentItemsInput, Prisma.NewsCategoryUncheckedCreateWithoutContentItemsInput>
   where?: Prisma.NewsCategoryWhereInput
 }
 
-export type NewsCategoryUpdateToOneWithWhereWithoutArticlesInput = {
+export type NewsCategoryUpdateToOneWithWhereWithoutContentItemsInput = {
   where?: Prisma.NewsCategoryWhereInput
-  data: Prisma.XOR<Prisma.NewsCategoryUpdateWithoutArticlesInput, Prisma.NewsCategoryUncheckedUpdateWithoutArticlesInput>
+  data: Prisma.XOR<Prisma.NewsCategoryUpdateWithoutContentItemsInput, Prisma.NewsCategoryUncheckedUpdateWithoutContentItemsInput>
 }
 
-export type NewsCategoryUpdateWithoutArticlesInput = {
+export type NewsCategoryUpdateWithoutContentItemsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -612,7 +612,7 @@ export type NewsCategoryUpdateWithoutArticlesInput = {
   feeds?: Prisma.SourceFeedUpdateManyWithoutCategoryNestedInput
 }
 
-export type NewsCategoryUncheckedUpdateWithoutArticlesInput = {
+export type NewsCategoryUncheckedUpdateWithoutContentItemsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -633,7 +633,7 @@ export type NewsCategoryUpdateWithoutParentInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   children?: Prisma.NewsCategoryUpdateManyWithoutParentNestedInput
   feeds?: Prisma.SourceFeedUpdateManyWithoutCategoryNestedInput
-  articles?: Prisma.ArticleUpdateManyWithoutCategoryNestedInput
+  contentItems?: Prisma.ContentItemUpdateManyWithoutCategoryNestedInput
 }
 
 export type NewsCategoryUncheckedUpdateWithoutParentInput = {
@@ -642,7 +642,7 @@ export type NewsCategoryUncheckedUpdateWithoutParentInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   children?: Prisma.NewsCategoryUncheckedUpdateManyWithoutParentNestedInput
   feeds?: Prisma.SourceFeedUncheckedUpdateManyWithoutCategoryNestedInput
-  articles?: Prisma.ArticleUncheckedUpdateManyWithoutCategoryNestedInput
+  contentItems?: Prisma.ContentItemUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type NewsCategoryUncheckedUpdateManyWithoutParentInput = {
@@ -659,13 +659,13 @@ export type NewsCategoryUncheckedUpdateManyWithoutParentInput = {
 export type NewsCategoryCountOutputType = {
   children: number
   feeds: number
-  articles: number
+  contentItems: number
 }
 
 export type NewsCategoryCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   children?: boolean | NewsCategoryCountOutputTypeCountChildrenArgs
   feeds?: boolean | NewsCategoryCountOutputTypeCountFeedsArgs
-  articles?: boolean | NewsCategoryCountOutputTypeCountArticlesArgs
+  contentItems?: boolean | NewsCategoryCountOutputTypeCountContentItemsArgs
 }
 
 /**
@@ -695,8 +695,8 @@ export type NewsCategoryCountOutputTypeCountFeedsArgs<ExtArgs extends runtime.Ty
 /**
  * NewsCategoryCountOutputType without action
  */
-export type NewsCategoryCountOutputTypeCountArticlesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ArticleWhereInput
+export type NewsCategoryCountOutputTypeCountContentItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ContentItemWhereInput
 }
 
 
@@ -708,7 +708,7 @@ export type NewsCategorySelect<ExtArgs extends runtime.Types.Extensions.Internal
   parent?: boolean | Prisma.NewsCategory$parentArgs<ExtArgs>
   children?: boolean | Prisma.NewsCategory$childrenArgs<ExtArgs>
   feeds?: boolean | Prisma.NewsCategory$feedsArgs<ExtArgs>
-  articles?: boolean | Prisma.NewsCategory$articlesArgs<ExtArgs>
+  contentItems?: boolean | Prisma.NewsCategory$contentItemsArgs<ExtArgs>
   _count?: boolean | Prisma.NewsCategoryCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["newsCategory"]>
 
@@ -740,7 +740,7 @@ export type NewsCategoryInclude<ExtArgs extends runtime.Types.Extensions.Interna
   parent?: boolean | Prisma.NewsCategory$parentArgs<ExtArgs>
   children?: boolean | Prisma.NewsCategory$childrenArgs<ExtArgs>
   feeds?: boolean | Prisma.NewsCategory$feedsArgs<ExtArgs>
-  articles?: boolean | Prisma.NewsCategory$articlesArgs<ExtArgs>
+  contentItems?: boolean | Prisma.NewsCategory$contentItemsArgs<ExtArgs>
   _count?: boolean | Prisma.NewsCategoryCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type NewsCategoryIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -756,7 +756,7 @@ export type $NewsCategoryPayload<ExtArgs extends runtime.Types.Extensions.Intern
     parent: Prisma.$NewsCategoryPayload<ExtArgs> | null
     children: Prisma.$NewsCategoryPayload<ExtArgs>[]
     feeds: Prisma.$SourceFeedPayload<ExtArgs>[]
-    articles: Prisma.$ArticlePayload<ExtArgs>[]
+    contentItems: Prisma.$ContentItemPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1160,7 +1160,7 @@ export interface Prisma__NewsCategoryClient<T, Null = never, ExtArgs extends run
   parent<T extends Prisma.NewsCategory$parentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.NewsCategory$parentArgs<ExtArgs>>): Prisma.Prisma__NewsCategoryClient<runtime.Types.Result.GetResult<Prisma.$NewsCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   children<T extends Prisma.NewsCategory$childrenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.NewsCategory$childrenArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NewsCategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   feeds<T extends Prisma.NewsCategory$feedsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.NewsCategory$feedsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SourceFeedPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  articles<T extends Prisma.NewsCategory$articlesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.NewsCategory$articlesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArticlePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  contentItems<T extends Prisma.NewsCategory$contentItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.NewsCategory$contentItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ContentItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1662,27 +1662,27 @@ export type NewsCategory$feedsArgs<ExtArgs extends runtime.Types.Extensions.Inte
 }
 
 /**
- * NewsCategory.articles
+ * NewsCategory.contentItems
  */
-export type NewsCategory$articlesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type NewsCategory$contentItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Article
+   * Select specific fields to fetch from the ContentItem
    */
-  select?: Prisma.ArticleSelect<ExtArgs> | null
+  select?: Prisma.ContentItemSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Article
+   * Omit specific fields from the ContentItem
    */
-  omit?: Prisma.ArticleOmit<ExtArgs> | null
+  omit?: Prisma.ContentItemOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ArticleInclude<ExtArgs> | null
-  where?: Prisma.ArticleWhereInput
-  orderBy?: Prisma.ArticleOrderByWithRelationInput | Prisma.ArticleOrderByWithRelationInput[]
-  cursor?: Prisma.ArticleWhereUniqueInput
+  include?: Prisma.ContentItemInclude<ExtArgs> | null
+  where?: Prisma.ContentItemWhereInput
+  orderBy?: Prisma.ContentItemOrderByWithRelationInput | Prisma.ContentItemOrderByWithRelationInput[]
+  cursor?: Prisma.ContentItemWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.ArticleScalarFieldEnum | Prisma.ArticleScalarFieldEnum[]
+  distinct?: Prisma.ContentItemScalarFieldEnum | Prisma.ContentItemScalarFieldEnum[]
 }
 
 /**
