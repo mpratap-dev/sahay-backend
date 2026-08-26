@@ -1,21 +1,44 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NormalizationService } from './normalization.service';
+import { ArticleDedupService } from './article-dedup.service';
+import {
+  NORMALIZE_BATCH_SIZE,
+  NormalizationService,
+} from './normalization.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 describe('NormalizationService', () => {
   let service: NormalizationService;
+  let prisma: {
+    rawArticle: {
+      findMany: jest.Mock;
+      findUnique: jest.Mock;
+      update: jest.Mock;
+    };
+    article: { findUnique: jest.Mock; create: jest.Mock };
+    $transaction: jest.Mock;
+  };
 
   beforeEach(async () => {
+    prisma = {
+      rawArticle: {
+        findMany: jest.fn().mockResolvedValue([]),
+        findUnique: jest.fn(),
+        update: jest.fn(),
+      },
+      article: { findUnique: jest.fn(), create: jest.fn() },
+      $transaction: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         NormalizationService,
         {
           provide: PrismaService,
-          useValue: {
-            rawArticle: { findUnique: jest.fn(), update: jest.fn() },
-            article: { findUnique: jest.fn(), create: jest.fn() },
-            $transaction: jest.fn(),
-          },
+          useValue: prisma,
+        },
+        {
+          provide: ArticleDedupService,
+          useValue: { linkAfterCreate: jest.fn() },
         },
       ],
     }).compile();
@@ -98,5 +121,35 @@ describe('NormalizationService', () => {
     const result = service.normalizePayload(payload);
     expect(result.imageUrl).toBe('https://example.com/photo.jpg');
     expect(payload).not.toHaveProperty('imageUrl');
+  });
+
+  it('sets language and confidence from feed language', () => {
+    const result = service.normalizePayload(
+      {
+        title: 'T',
+        link: 'https://example.com/a',
+      },
+      'en',
+    );
+    expect(result.language).toBe('en');
+    expect(result.languageConfidence).toBe(1);
+  });
+
+  it('limits normalizeUnprocessedForSource to a batch', async () => {
+    await service.normalizeUnprocessedForSource('source-1');
+
+    expect(prisma.rawArticle.findMany).toHaveBeenCalledWith({
+      where: { processed: false, sourceFeed: { sourceId: 'source-1' } },
+      orderBy: { fetchedAt: 'asc' },
+      take: NORMALIZE_BATCH_SIZE,
+    });
+  });
+
+  it('allows overriding the normalize batch size', async () => {
+    await service.normalizeUnprocessedForSource('source-1', 100);
+
+    expect(prisma.rawArticle.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 100 }),
+    );
   });
 });

@@ -43,35 +43,58 @@ export class IngestionService {
     let newRawArticles = 0;
 
     for (const feed of activeFeeds) {
-      const items = await fetcher.fetch(feed.url);
-      itemsFetched += items.length;
+      try {
+        const items = await fetcher.fetch(feed.url);
+        itemsFetched += items.length;
 
-      for (const item of items) {
-        const existing = await this.prisma.rawArticle.findUnique({
-          where: {
-            sourceFeedId_externalId: {
-              sourceFeedId: feed.id,
-              externalId: item.externalId,
-            },
-          },
-        });
-
-        if (!existing) {
-          await this.prisma.rawArticle.create({
-            data: {
-              sourceFeedId: feed.id,
-              externalId: item.externalId,
-              payload: item.payload as Prisma.InputJsonValue,
+        for (const item of items) {
+          const existing = await this.prisma.rawArticle.findUnique({
+            where: {
+              sourceFeedId_externalId: {
+                sourceFeedId: feed.id,
+                externalId: item.externalId,
+              },
             },
           });
-          newRawArticles++;
-        }
-      }
 
-      await this.prisma.sourceFeed.update({
-        where: { id: feed.id },
-        data: { lastFetchedAt: new Date() },
-      });
+          if (!existing) {
+            await this.prisma.rawArticle.create({
+              data: {
+                sourceFeedId: feed.id,
+                externalId: item.externalId,
+                payload: item.payload as Prisma.InputJsonValue,
+              },
+            });
+            newRawArticles++;
+          }
+        }
+
+        await this.prisma.sourceFeed.update({
+          where: { id: feed.id },
+          data: {
+            lastFetchedAt: new Date(),
+            lastError: null,
+            consecutiveFailures: 0,
+            lastStatus: 'ok',
+          },
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        this.logger.warn({
+          msg: 'Feed fetch failed',
+          feedId: feed.id,
+          url: feed.url,
+          error: message,
+        });
+        await this.prisma.sourceFeed.update({
+          where: { id: feed.id },
+          data: {
+            lastError: message.slice(0, 1000),
+            consecutiveFailures: { increment: 1 },
+            lastStatus: 'error',
+          },
+        });
+      }
     }
 
     const articlesNormalized =

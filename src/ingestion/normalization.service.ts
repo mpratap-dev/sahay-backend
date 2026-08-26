@@ -1,24 +1,39 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ArticleTopicSource } from '../generated/prisma/enums';
 import { PrismaService } from '../prisma/prisma.service';
+import { ArticleDedupService } from './article-dedup.service';
+import {
+  extractNormalizedFields,
+  isValidUrl,
+  resolvePublishedAt,
+  type NormalizedPayloadFields,
+} from './normalize-payload';
+import { titleFingerprint } from './title-fingerprint';
+import { topicSlugsFromRawCategoryLabel } from './topic-mapping';
 
-export interface NormalizedArticleData {
-  title: string;
-  summary: string | null;
-  url: string;
+export interface NormalizedArticleData extends NormalizedPayloadFields {
   imageUrl: string | null;
-  language: string;
-  publishedAt: Date | null;
 }
+
+export const NORMALIZE_BATCH_SIZE = 500;
 
 @Injectable()
 export class NormalizationService {
   private readonly logger = new Logger(NormalizationService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly articleDedupService: ArticleDedupService,
+  ) {}
 
-  async normalizeUnprocessedForSource(sourceId: string): Promise<number> {
+  async normalizeUnprocessedForSource(
+    sourceId: string,
+    take = NORMALIZE_BATCH_SIZE,
+  ): Promise<number> {
     const unprocessed = await this.prisma.rawArticle.findMany({
       where: { processed: false, sourceFeed: { sourceId } },
+      orderBy: { fetchedAt: 'asc' },
+      take,
     });
 
     let normalized = 0;
@@ -53,7 +68,18 @@ export class NormalizationService {
     const payload = rawArticle.payload as Record<string, unknown>;
 
     try {
-      const normalized = this.normalizePayload(payload);
+      const feedLanguage = rawArticle.sourceFeed.language || 'en';
+      const normalized = this.normalizePayload(payload, feedLanguage);
+      const fingerprint = titleFingerprint(normalized.title);
+      const publishedAt = resolvePublishedAt(
+        normalized.publishedAt,
+        rawArticle.fetchedAt,
+      );
+      const topicSlugs = topicSlugsFromRawCategoryLabel(
+        rawArticle.sourceFeed.rawCategoryLabel,
+      );
+
+      let createdArticleId: string | null = null;
 
       await this.prisma.$transaction(async (tx) => {
         const existingArticle = await tx.article.findUnique({
@@ -61,7 +87,15 @@ export class NormalizationService {
         });
 
         if (!existingArticle) {
-          await tx.article.create({
+          const topics =
+            topicSlugs.length > 0
+              ? await tx.topic.findMany({
+                  where: { slug: { in: topicSlugs } },
+                  select: { id: true },
+                })
+              : [];
+
+          const created = await tx.article.create({
             data: {
               rawArticleId: rawArticle.id,
               sourceId: rawArticle.sourceFeed.sourceId,
@@ -70,10 +104,24 @@ export class NormalizationService {
               url: normalized.url,
               imageUrl: normalized.imageUrl,
               language: normalized.language,
-              publishedAt: normalized.publishedAt,
+              languageConfidence: normalized.languageConfidence,
+              publishedAt,
               fetchedAt: rawArticle.fetchedAt,
+              titleFingerprint: fingerprint,
+              categoryId: rawArticle.sourceFeed.categoryId,
+              articleTopics:
+                topics.length > 0
+                  ? {
+                      create: topics.map((topic) => ({
+                        topicId: topic.id,
+                        source: ArticleTopicSource.FEED_CATEGORY,
+                        confidence: 1,
+                      })),
+                    }
+                  : undefined,
             },
           });
+          createdArticleId = created.id;
         }
 
         await tx.rawArticle.update({
@@ -86,12 +134,16 @@ export class NormalizationService {
         });
       });
 
+      if (createdArticleId) {
+        await this.articleDedupService.linkAfterCreate(createdArticleId);
+      }
+
       return true;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
 
       await this.prisma.rawArticle.update({
-        where: { id: rawArticle.id },
+        where: { id: rawArticleId },
         data: {
           processed: false,
           processingError: message,
@@ -104,12 +156,13 @@ export class NormalizationService {
 
   getImageUrl(payload: Record<string, unknown>): string | null {
     const media = payload.media as
-      { contents: { url: string; medium: string }[] } | undefined;
+      | { contents: { url: string; medium: string }[] }
+      | undefined;
     if (media && media.contents.length > 0) {
       for (const content of media.contents) {
         if (content.medium === 'image') {
           const imageUrl = content.url.trim();
-          if (this.isValidUrl(imageUrl)) {
+          if (isValidUrl(imageUrl)) {
             return imageUrl;
           }
         }
@@ -124,12 +177,14 @@ export class NormalizationService {
       const type = enclosure.type as string | undefined;
       if (!type || type.startsWith('image/')) {
         const url = enclosure.url.trim();
-        if (this.isValidUrl(url)) return url;
+        if (isValidUrl(url)) return url;
       }
     }
 
     const mediaContent = payload['media:content'] as
-      Record<string, unknown> | Record<string, unknown>[] | undefined;
+      | Record<string, unknown>
+      | Record<string, unknown>[]
+      | undefined;
 
     if (Array.isArray(mediaContent)) {
       for (const media of mediaContent) {
@@ -142,18 +197,20 @@ export class NormalizationService {
     }
 
     const mediaThumbnail = payload['media:thumbnail'] as
-      Record<string, unknown> | Record<string, unknown>[] | undefined;
+      | Record<string, unknown>
+      | Record<string, unknown>[]
+      | undefined;
 
     if (Array.isArray(mediaThumbnail)) {
       for (const thumb of mediaThumbnail) {
         if (typeof thumb.url === 'string') {
           const url = thumb.url.trim();
-          if (this.isValidUrl(url)) return url;
+          if (isValidUrl(url)) return url;
         }
       }
     } else if (mediaThumbnail && typeof mediaThumbnail.url === 'string') {
       const url = mediaThumbnail.url.trim();
-      if (this.isValidUrl(url)) return url;
+      if (isValidUrl(url)) return url;
     }
 
     return null;
@@ -165,82 +222,21 @@ export class NormalizationService {
     const medium = media.medium as string | undefined;
     if (medium === 'image' || (type && type.startsWith('image/')) || !type) {
       const url = media.url.trim();
-      if (this.isValidUrl(url)) return url;
+      if (isValidUrl(url)) return url;
     }
     return null;
   }
 
-  normalizePayload(payload: Record<string, unknown>): NormalizedArticleData {
-    const title =
-      typeof payload.title === 'string' && payload.title.trim()
-        ? payload.title.trim()
-        : 'Untitled';
-
-    const summary =
-      typeof payload.description === 'string'
-        ? payload.description.trim() || null
-        : null;
-
-    const link =
-      typeof payload.link === 'string' ? payload.link.trim() : undefined;
-    const guid = this.extractGuid(payload);
-    const url = link ?? guid;
-
-    if (!url || !this.isValidUrl(url)) {
-      throw new Error('No usable URL for article normalization');
-    }
-
+  normalizePayload(
+    payload: Record<string, unknown>,
+    feedLanguage = 'en',
+  ): NormalizedArticleData {
+    const fields = extractNormalizedFields(payload, feedLanguage);
     const imageUrl = this.extractImageUrl(payload) ?? this.getImageUrl(payload);
 
-    const publishedAt = this.parsePublishedAt(
-      payload.pubDate ?? payload.published ?? payload.updated,
-    );
-
     return {
-      title,
-      summary,
-      url,
+      ...fields,
       imageUrl,
-      language: 'en',
-      publishedAt,
     };
-  }
-
-  private extractGuid(payload: Record<string, unknown>): string | undefined {
-    const guid = payload.guid;
-    if (typeof guid === 'string') {
-      const trimmed = guid.trim();
-      return trimmed.length > 0 ? trimmed : undefined;
-    }
-    if (guid && typeof guid === 'object' && 'value' in guid) {
-      const value = (guid as { value?: unknown }).value;
-      if (typeof value === 'string') {
-        const trimmed = value.trim();
-        return trimmed.length > 0 ? trimmed : undefined;
-      }
-    }
-    return undefined;
-  }
-
-  private parsePublishedAt(value: unknown): Date | null {
-    if (typeof value !== 'string' || !value.trim()) {
-      return null;
-    }
-
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) {
-      return null;
-    }
-
-    return date;
-  }
-
-  private isValidUrl(url: string): boolean {
-    try {
-      const parsed = new URL(url);
-      return parsed.protocol === 'http:' || parsed.protocol === 'https:';
-    } catch {
-      return false;
-    }
   }
 }

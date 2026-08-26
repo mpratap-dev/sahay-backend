@@ -67,6 +67,8 @@ async function upsertTopics() {
 }
 
 async function upsertFeeds(sourceId: string, urls: string[]) {
+  const urlSet = new Set(urls);
+
   for (const url of urls) {
     await prisma.sourceFeed.upsert({
       where: { url },
@@ -83,6 +85,19 @@ async function upsertFeeds(sourceId: string, urls: string[]) {
         rawCategoryLabel: rawCategoryLabelFromUrl(url),
       },
     });
+  }
+
+  const deactivated = await prisma.sourceFeed.updateMany({
+    where: {
+      sourceId,
+      url: { notIn: [...urlSet] },
+      isActive: true,
+    },
+    data: { isActive: false },
+  });
+
+  if (deactivated.count > 0) {
+    console.log(`Deactivated ${deactivated.count} orphaned feeds for source`);
   }
 }
 

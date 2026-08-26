@@ -8,6 +8,7 @@ import { IngestionProcessor } from './ingestion.processor';
 import { IngestionQueueService } from './ingestion-queue.service';
 import { IngestionScheduler } from './ingestion.scheduler';
 import { IngestionService } from './ingestion.service';
+import { ArticleDedupService } from './article-dedup.service';
 import { NormalizationService } from './normalization.service';
 
 @Module({})
@@ -28,6 +29,7 @@ export class IngestionModule {
         RssFetcher,
         FetcherRegistry,
         NormalizationService,
+        ArticleDedupService,
         IngestionService,
         IngestionQueueService,
         ...workerProviders,

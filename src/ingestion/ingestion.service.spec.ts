@@ -96,4 +96,142 @@ describe('IngestionService deduplication', () => {
       },
     });
   });
+
+  it('marks successful feed with ok status and clears errors', async () => {
+    prisma.rawArticle.findUnique.mockResolvedValue(null);
+    prisma.rawArticle.create.mockResolvedValue({ id: 'raw-1' });
+
+    await service.ingestSource('source-1');
+
+    expect(prisma.sourceFeed.update).toHaveBeenCalledWith({
+      where: { id: 'feed-1' },
+      data: {
+        lastFetchedAt: expect.any(Date),
+        lastError: null,
+        consecutiveFailures: 0,
+        lastStatus: 'ok',
+      },
+    });
+  });
+});
+
+describe('IngestionService feed isolation', () => {
+  let service: IngestionService;
+
+  const multiFeedSource = {
+    id: 'source-1',
+    slug: 'test-source',
+    isActive: true,
+    feeds: [
+      {
+        id: 'feed-ok',
+        url: 'https://example.com/ok.rss',
+        isActive: true,
+      },
+      {
+        id: 'feed-bad',
+        url: 'https://example.com/bad.rss',
+        isActive: true,
+      },
+    ],
+  };
+
+  const prisma = {
+    rawArticle: {
+      findUnique: jest.fn(),
+      create: jest.fn(),
+    },
+    sourceFeed: {
+      update: jest.fn(),
+    },
+  };
+
+  const fetcher = {
+    fetch: jest.fn(),
+  };
+
+  const normalizationService = {
+    normalizeUnprocessedForSource: jest.fn().mockResolvedValue(1),
+  };
+
+  beforeEach(async () => {
+    jest.clearAllMocks();
+
+    fetcher.fetch.mockImplementation((url: string) => {
+      if (url.includes('bad')) {
+        return Promise.reject(new Error('Feed fetch failed: 404'));
+      }
+      return Promise.resolve([
+        {
+          externalId: 'ext-ok',
+          payload: { title: 'OK', link: 'https://example.com/ok-article' },
+        },
+      ]);
+    });
+
+    prisma.rawArticle.findUnique.mockResolvedValue(null);
+    prisma.rawArticle.create.mockResolvedValue({ id: 'raw-1' });
+    prisma.sourceFeed.update.mockResolvedValue({});
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        IngestionService,
+        { provide: PrismaService, useValue: prisma },
+        {
+          provide: SourcesService,
+          useValue: {
+            findById: jest.fn().mockResolvedValue(multiFeedSource),
+          },
+        },
+        {
+          provide: FetcherRegistry,
+          useValue: { getFetcherForSource: () => fetcher },
+        },
+        {
+          provide: NormalizationService,
+          useValue: normalizationService,
+        },
+      ],
+    }).compile();
+
+    service = module.get(IngestionService);
+  });
+
+  it('continues ingesting other feeds when one feed fails', async () => {
+    const result = await service.ingestSource('source-1');
+
+    expect(fetcher.fetch).toHaveBeenCalledTimes(2);
+    expect(prisma.rawArticle.create).toHaveBeenCalledTimes(1);
+    expect(result.newRawArticles).toBe(1);
+  });
+
+  it('records lastError on failed feed and ok status on successful feed', async () => {
+    await service.ingestSource('source-1');
+
+    expect(prisma.sourceFeed.update).toHaveBeenCalledWith({
+      where: { id: 'feed-ok' },
+      data: {
+        lastFetchedAt: expect.any(Date),
+        lastError: null,
+        consecutiveFailures: 0,
+        lastStatus: 'ok',
+      },
+    });
+    expect(prisma.sourceFeed.update).toHaveBeenCalledWith({
+      where: { id: 'feed-bad' },
+      data: {
+        lastError: 'Feed fetch failed: 404',
+        consecutiveFailures: { increment: 1 },
+        lastStatus: 'error',
+      },
+    });
+  });
+
+  it('normalizes even when some feeds fail', async () => {
+    await service.ingestSource('source-1');
+
+    expect(normalizationService.normalizeUnprocessedForSource).toHaveBeenCalledWith(
+      'source-1',
+    );
+  });
 });

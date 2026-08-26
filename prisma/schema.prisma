@@ -25,6 +25,12 @@ enum IngestMethod {
   SCRAPE
 }
 
+enum ArticleTopicSource {
+  FEED_CATEGORY
+  EXTRACTED
+  MANUAL
+}
+
 // Publisher (one row per outlet). Pollable endpoints live on SourceFeed.
 model Source {
   id          String     @id @default(cuid())
@@ -84,6 +90,36 @@ model NewsCategory {
   articles Article[]
 }
 
+// SAHAY-controlled interest taxonomy (not publisher section labels).
+model Topic {
+  id       String  @id @default(cuid())
+  slug     String  @unique
+  name     String // English display; locale translations can be added later
+  parentId String?
+  parent   Topic?  @relation("TopicHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children Topic[] @relation("TopicHierarchy")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  articleTopics ArticleTopic[]
+}
+
+model ArticleTopic {
+  id        String             @id @default(cuid())
+  articleId String
+  article   Article            @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  topicId   String
+  topic     Topic              @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  source    ArticleTopicSource @default(FEED_CATEGORY)
+  confidence Float?
+
+  createdAt DateTime @default(now())
+
+  @@unique([articleId, topicId])
+  @@index([topicId, articleId])
+}
+
 // Immutable ingest snapshot. After insert, only processing metadata may change.
 model RawArticle {
   id              String     @id @default(cuid())
@@ -116,9 +152,10 @@ model Article {
   summary     String?
   url         String
   imageUrl    String?
-  language    String    @default("en")
+  language           String  @default("en") // BCP-47-ish code; English-first, more locales later
+  languageConfidence Float?
   publishedAt DateTime?
-  fetchedAt   DateTime  @default(now())
+  fetchedAt   DateTime @default(now())
 
   categoryId String?
   category   NewsCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
@@ -127,10 +164,19 @@ model Article {
   urgency    String?
   confidence Float?
 
+  titleFingerprint   String?
+  canonicalArticleId String?
+  canonicalArticle   Article?  @relation("ArticleDuplicates", fields: [canonicalArticleId], references: [id], onDelete: SetNull)
+  duplicates         Article[] @relation("ArticleDuplicates")
+
+  articleTopics ArticleTopic[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([publishedAt])
   @@index([sourceId])
   @@index([categoryId])
+  @@index([titleFingerprint, publishedAt])
+  @@index([canonicalArticleId])
 }
