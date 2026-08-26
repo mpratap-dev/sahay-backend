@@ -41,16 +41,19 @@ A common internal `ContentItem` / event representation should capture concepts s
 - Source type.
 - URL/reference.
 - Title and summary.
-- **Language and language confidence** — a first-class field, not an afterthought. SAHAY targets Hindi and English from the first ingestion phase (see roadmap Phase 1B), and several Delhi outlets already publish Hindi RSS feeds, so this is populated at ingestion time rather than inferred later. Storing it from day one avoids a schema migration once cross-language event matching (embeddings-based, see Event Intelligence below) becomes necessary.
+- **Language and language confidence** — first-class fields on `Article` (`language` string default `"en"`, plus `languageConfidence`). **English-only at launch**; the string field stays locale-code flexible so Hindi and other languages can be added without a schema rewrite. Populate at ingestion from the feed when known.
 - Published/fetched time.
-- Location.
-- Category.
+- Location (later via geo IDs — Phase 4).
+- **Category vs Topic (do not collapse):**
+  - `NewsCategory` — publisher/editorial section (one primary per feed or item). Used for ingest mapping and display of source taxonomy.
+  - `Topic` + `ArticleTopic` — SAHAY-controlled interest taxonomy (many-to-many). Used for user interests, occupation mapping later, and feed candidate generation. Not free-form tags.
 - Entities.
 - Urgency.
 - Confidence.
 - Raw source metadata.
+- **Article-level duplicate linking (R1, not event clustering):** keep both `Article` rows. `titleFingerprint` is a normalized, order-independent token string for cheap lookup. `canonicalArticleId` is null for the canonical row; later matches of the same wire story point at it. This is not R8 event clustering (no embeddings, no multi-signal events). Feed/brief can later filter `canonicalArticleId IS NULL`.
 
-The exact schema will be defined during technical design.
+Feed personalization (later) filters candidates on indexed topic/geo IDs, then ranks a small set — it does not scan all articles.
 
 ### Source trust model
 
@@ -129,13 +132,12 @@ SAHAY answers:
 
 Potential signals include:
 
-- Current/home location.
-- Work location.
-- Additional saved locations.
+- Current location and hometown (MVP: max **2** places via `UserLocation` with kinds `CURRENT` | `HOMETOWN`).
+- Later (pro): up to **5** saved places (work, family, etc.) on the same `UserLocation` table — product cap, not a schema rewrite.
 - Age or age group.
-- Occupation.
-- Constituency.
-- Followed topics/interests.
+- Occupation (maps to `Topic`s later via `OccupationTopic`, not article tags).
+- Constituency (derive from a location slot when civic geo exists).
+- Followed topics/interests (`UserInterest` → `Topic`).
 - Previous interactions.
 - Issues reported by the user.
 - Poll participation/interests.
@@ -144,13 +146,17 @@ Potential signals include:
 - Urgency.
 - Recency.
 
+Do not put `currentCityId` / `hometownCityId` as columns on `User`. Use a `UserLocation` child table so feed candidate generation stays `IN (placeIds)` as the place count grows.
+
 ### Ranking model
 
 The eventual relevance engine should consider factors such as:
 
 **Relevance + Proximity + Impact + Urgency + Confidence + Recency + User Interest**
 
-The exact scoring and ranking algorithm should be defined during technical design and validated through user behavior and feedback.
+Practical shape: **candidate generation** (geo ∪ topics ∪ high-urgency, recent window) then **score** only that small set. Attach “why am I seeing this” including which location slot(s) matched.
+
+The exact scoring weights should be defined during technical design and validated through user behavior and feedback.
 
 ---
 
@@ -302,7 +308,7 @@ The experience should be designed for India's linguistic and digital diversity.
 - Code-mixed speech.
 - Natural conversational phrasing.
 
-**Near-term scope:** launch with Hindi and English, since content ingestion is bilingual from Phase 1B and the `ContentItem` model carries language as a first-class field from the start. Code-mixed voice input (Hindi-English in a single sentence) and additional regional languages are real capabilities but belong later, once text-based bilingual search and content are working reliably — treat them as Phase 14 work, not a launch blocker.
+**Near-term scope:** **English only at launch.** `language` remains a string (default `"en"`) and Topic display names are English so additional locales (Hindi first) can be added without rewriting the core schema. Code-mixed voice and broader regional languages belong later (Phase 14), once text-based multi-language content is working.
 
 Example:
 

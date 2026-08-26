@@ -17,6 +17,11 @@ async function bootstrap() {
   );
   app.enableShutdownHooks();
 
+  const configService = app.get(ConfigService);
+  if (configService.get('NODE_ENV') !== 'production') {
+    app.enableCors({ origin: 'http://localhost:3000' });
+  }
+
   const swaggerConfig = new DocumentBuilder()
     .setTitle('SAHAY API')
     .setDescription('SAHAY civic intelligence platform API')
@@ -25,7 +30,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, document);
 
-  const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT', 3001);
   await app.listen(port);
 }

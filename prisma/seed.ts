@@ -3,6 +3,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { SourceType } from '../src/generated/prisma/enums';
 import { createPrismaClient } from '../src/prisma/create-prisma-pg-adapter';
+import { TOPIC_SEED } from '../src/ingestion/topic-mapping';
 
 const prisma = createPrismaClient(process.env.DATABASE_URL!);
 const FEEDS_DIR = path.join(__dirname, '..', 'data', 'feeds');
@@ -54,6 +55,17 @@ async function loadFeedSourceFiles(): Promise<FeedSourceFile[]> {
   return sources;
 }
 
+async function upsertTopics() {
+  for (const topic of TOPIC_SEED) {
+    await prisma.topic.upsert({
+      where: { slug: topic.slug },
+      update: { name: topic.name },
+      create: { slug: topic.slug, name: topic.name },
+    });
+  }
+  console.log(`Seeded ${TOPIC_SEED.length} topics`);
+}
+
 async function upsertFeeds(sourceId: string, urls: string[]) {
   for (const url of urls) {
     await prisma.sourceFeed.upsert({
@@ -75,6 +87,8 @@ async function upsertFeeds(sourceId: string, urls: string[]) {
 }
 
 async function main() {
+  await upsertTopics();
+
   const feedSources = await loadFeedSourceFiles();
 
   for (const feedSource of feedSources) {
