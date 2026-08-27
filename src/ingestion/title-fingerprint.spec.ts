@@ -6,9 +6,7 @@ import {
 
 describe('titleFingerprint', () => {
   it('matches the same story after dropping publisher suffixes and stopwords', () => {
-    const hindu = titleFingerprint(
-      'PM visits Delhi after floods - The Hindu',
-    );
+    const hindu = titleFingerprint('PM visits Delhi after floods - The Hindu');
     const ani = titleFingerprint('PM visits Delhi after floods | ANI');
     expect(hindu).toBe(ani);
     expect(hindu).toBeTruthy();
@@ -24,9 +22,9 @@ describe('titleFingerprint', () => {
 describe('jaccardSimilarity', () => {
   it('is high for near-identical wording', () => {
     const a =
-      titleFingerprint(
-        'Cabinet clears new metro corridor plan Delhi',
-      )?.split(' ') ?? [];
+      titleFingerprint('Cabinet clears new metro corridor plan Delhi')?.split(
+        ' ',
+      ) ?? [];
     const b =
       titleFingerprint('Cabinet clears new metro corridor plan')?.split(' ') ??
       [];

@@ -46,8 +46,7 @@ export class ContentService {
 
     const categoryIds = await this.resolveCategoryIds(query.category);
     const types = query.type?.length ? query.type : undefined;
-    const includeArticle =
-      !types || types.includes(ContentType.NEWS_ARTICLE);
+    const includeArticle = !types || types.includes(ContentType.NEWS_ARTICLE);
 
     const where: Prisma.ContentItemWhereInput = {
       status,
@@ -104,7 +103,7 @@ export class ContentService {
     return {
       items: page.map((item) => this.toListItem(item as ContentRow)),
       nextCursor:
-        hasMore && last?.publishedAt
+        hasMore && last.publishedAt
           ? encodeCursor({ publishedAt: last.publishedAt, id: last.id })
           : null,
     };

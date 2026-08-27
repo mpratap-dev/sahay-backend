@@ -17,7 +17,9 @@ export class ArticleDedupService {
   async linkAfterCreate(contentItemId: string): Promise<void> {
     const contentItem = await this.prisma.contentItem.findUnique({
       where: { id: contentItemId },
-      include: { article: { include: { source: { select: { trustTier: true } } } } },
+      include: {
+        article: { include: { source: { select: { trustTier: true } } } },
+      },
     });
 
     if (!contentItem?.titleFingerprint || !contentItem.publishedAt) {
@@ -38,7 +40,9 @@ export class ArticleDedupService {
         titleFingerprint: contentItem.titleFingerprint,
         publishedAt: { gte: windowStart, lte: windowEnd },
       },
-      include: { article: { include: { source: { select: { trustTier: true } } } } },
+      include: {
+        article: { include: { source: { select: { trustTier: true } } } },
+      },
     });
 
     let matches = fingerprintMatches;
@@ -53,7 +57,9 @@ export class ArticleDedupService {
         },
         take: DEDUP_SCAN_LIMIT,
         orderBy: { publishedAt: 'desc' },
-        include: { article: { include: { source: { select: { trustTier: true } } } } },
+        include: {
+          article: { include: { source: { select: { trustTier: true } } } },
+        },
       });
 
       const tokens = titleTokens(contentItem.title);
@@ -80,7 +86,9 @@ export class ArticleDedupService {
       extraIds.length > 0
         ? await this.prisma.contentItem.findMany({
             where: { id: { in: extraIds } },
-            include: { article: { include: { source: { select: { trustTier: true } } } } },
+            include: {
+              article: { include: { source: { select: { trustTier: true } } } },
+            },
           })
         : [];
 

@@ -45,7 +45,7 @@ describe('RssFetcher', () => {
       ok: true,
       headers: { get: () => null },
       body: null,
-      text: async () => sampleRss,
+      text: () => Promise.resolve(sampleRss),
     });
 
     const items = await fetcher.fetch('https://example.com/feed.rss');
@@ -83,7 +83,7 @@ describe('RssFetcher', () => {
       ok: true,
       headers: { get: () => null },
       body: null,
-      text: async () => rssWithoutGuid,
+      text: () => Promise.resolve(rssWithoutGuid),
     });
 
     const first = await fetcher.fetch('https://example.com/feed.rss');
@@ -103,7 +103,7 @@ describe('RssFetcher', () => {
       ok: true,
       headers: { get: () => null },
       body: null,
-      text: async () => rssOnlyBadItem,
+      text: () => Promise.resolve(rssOnlyBadItem),
     });
 
     const items = await fetcher.fetch('https://example.com/feed.rss');

@@ -1,7 +1,4 @@
-import {
-  TOPIC_SEED,
-  topicSlugsFromRawCategoryLabel,
-} from './topic-mapping';
+import { TOPIC_SEED, topicSlugsFromRawCategoryLabel } from './topic-mapping';
 
 describe('topicSlugsFromRawCategoryLabel', () => {
   it('returns empty for missing label', () => {
@@ -11,9 +8,9 @@ describe('topicSlugsFromRawCategoryLabel', () => {
   });
 
   it('maps ANI-style category paths', () => {
-    expect(topicSlugsFromRawCategoryLabel('category/national/politics')).toEqual(
-      expect.arrayContaining(['national', 'politics']),
-    );
+    expect(
+      topicSlugsFromRawCategoryLabel('category/national/politics'),
+    ).toEqual(expect.arrayContaining(['national', 'politics']));
     expect(topicSlugsFromRawCategoryLabel('category/sports/cricket')).toEqual(
       expect.arrayContaining(['sports']),
     );

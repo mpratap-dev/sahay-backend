@@ -6,6 +6,19 @@ import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { getQueueToken } from '@nestjs/bullmq';
 
+interface HealthResponse {
+  status: string;
+}
+
+interface ContentListResponse {
+  items: unknown[];
+  nextCursor: string | null;
+}
+
+interface IngestionTriggerResponse {
+  scheduled: number;
+}
+
 describe('SAHAY API (e2e)', () => {
   let app: INestApplication<App>;
 
@@ -22,11 +35,14 @@ describe('SAHAY API (e2e)', () => {
     newsCategory: {
       findMany: jest.fn().mockResolvedValue([]),
     },
-    $transaction: jest.fn().mockImplementation(async (ops) => {
+    $transaction: jest.fn().mockImplementation(async (ops: unknown) => {
       if (Array.isArray(ops)) {
-        return [await ops[0], await ops[1]];
+        return Promise.all(ops as Promise<unknown>[]);
       }
-      return ops(prismaMock);
+      if (typeof ops === 'function') {
+        return (ops as (prisma: typeof prismaMock) => unknown)(prismaMock);
+      }
+      return undefined;
     }),
   };
 
@@ -63,8 +79,9 @@ describe('SAHAY API (e2e)', () => {
     return request(app.getHttpServer())
       .get('/health')
       .expect(200)
-      .expect((res) => {
-        expect(res.body.status).toBe('ok');
+      .expect((res: request.Response) => {
+        const body = res.body as HealthResponse;
+        expect(body.status).toBe('ok');
       });
   });
 
@@ -72,9 +89,10 @@ describe('SAHAY API (e2e)', () => {
     return request(app.getHttpServer())
       .get('/content')
       .expect(200)
-      .expect((res) => {
-        expect(res.body.items).toEqual([]);
-        expect(res.body.nextCursor).toBeNull();
+      .expect((res: request.Response) => {
+        const body = res.body as ContentListResponse;
+        expect(body.items).toEqual([]);
+        expect(body.nextCursor).toBeNull();
       });
   });
 
@@ -86,8 +104,9 @@ describe('SAHAY API (e2e)', () => {
     return request(app.getHttpServer())
       .post('/ingestion/trigger')
       .expect(201)
-      .expect((res) => {
-        expect(res.body.scheduled).toBeGreaterThanOrEqual(0);
+      .expect((res: request.Response) => {
+        const body = res.body as IngestionTriggerResponse;
+        expect(body.scheduled).toBeGreaterThanOrEqual(0);
       });
   });
 });

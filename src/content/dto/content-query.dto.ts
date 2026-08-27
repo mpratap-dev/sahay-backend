@@ -13,18 +13,33 @@ function parseCommaSeparated(value: unknown): string[] | undefined {
   }
 
   if (Array.isArray(value)) {
-    return value.flatMap((entry) =>
-      String(entry)
-        .split(',')
-        .map((part) => part.trim())
-        .filter(Boolean),
-    );
+    return value.flatMap((entry: unknown) => {
+      if (
+        typeof entry === 'string' ||
+        typeof entry === 'number' ||
+        typeof entry === 'boolean'
+      ) {
+        return String(entry)
+          .split(',')
+          .map((part) => part.trim())
+          .filter(Boolean);
+      }
+      return [];
+    });
   }
 
-  return String(value)
-    .split(',')
-    .map((part) => part.trim())
-    .filter(Boolean);
+  if (
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'boolean'
+  ) {
+    return String(value)
+      .split(',')
+      .map((part) => part.trim())
+      .filter(Boolean);
+  }
+
+  return undefined;
 }
 
 export class ContentQueryDto {

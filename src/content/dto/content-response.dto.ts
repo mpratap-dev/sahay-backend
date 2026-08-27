@@ -3,58 +3,58 @@ import { ContentStatus, ContentType } from '../../generated/prisma/enums';
 
 export class CategorySummaryDto {
   @ApiProperty()
-  id: string;
+  id!: string;
 
   @ApiProperty()
-  name: string;
+  name!: string;
 
   @ApiProperty()
-  slug: string;
+  slug!: string;
 }
 
 export class SourceSummaryDto {
   @ApiProperty()
-  name: string;
+  name!: string;
 
   @ApiProperty()
-  slug: string;
+  slug!: string;
 
   @ApiProperty()
-  trustTier: number;
+  trustTier!: number;
 }
 
 export class ArticleDetailDto {
   @ApiProperty()
-  url: string;
+  url!: string;
 
   @ApiPropertyOptional()
-  imageUrl: string | null;
+  imageUrl!: string | null;
 
   @ApiProperty({ type: SourceSummaryDto })
-  source: SourceSummaryDto;
+  source!: SourceSummaryDto;
 }
 
 export class ContentListItemDto {
   @ApiProperty()
-  id: string;
+  id!: string;
 
   @ApiProperty({ enum: ContentType })
-  type: ContentType;
+  type!: ContentType;
 
   @ApiProperty({ enum: ContentStatus })
-  status: ContentStatus;
+  status!: ContentStatus;
 
   @ApiProperty()
-  title: string;
+  title!: string;
 
   @ApiPropertyOptional()
-  summary: string | null;
+  summary!: string | null;
 
   @ApiPropertyOptional()
-  publishedAt: Date | null;
+  publishedAt!: Date | null;
 
   @ApiPropertyOptional({ type: CategorySummaryDto })
-  category: CategorySummaryDto | null;
+  category!: CategorySummaryDto | null;
 
   @ApiPropertyOptional({ type: ArticleDetailDto })
   article?: ArticleDetailDto;
@@ -62,8 +62,8 @@ export class ContentListItemDto {
 
 export class ContentListResponseDto {
   @ApiProperty({ type: [ContentListItemDto] })
-  items: ContentListItemDto[];
+  items!: ContentListItemDto[];
 
   @ApiPropertyOptional()
-  nextCursor: string | null;
+  nextCursor!: string | null;
 }

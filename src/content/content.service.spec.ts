@@ -1,5 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { Prisma } from '../generated/prisma/client';
 import { ContentStatus, ContentType } from '../generated/prisma/enums';
 import { PrismaService } from '../prisma/prisma.service';
 import { ContentService } from './content.service';
@@ -58,7 +59,9 @@ describe('ContentService', () => {
     expect(result.nextCursor).toBeNull();
     expect(contentItem.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: expect.objectContaining({ status: ContentStatus.PUBLISHED }),
+        where: expect.objectContaining({
+          status: ContentStatus.PUBLISHED,
+        }) as Prisma.ContentItemWhereInput,
         take: 21,
       }),
     );

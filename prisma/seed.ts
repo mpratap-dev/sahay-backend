@@ -5,7 +5,11 @@ import { SourceType } from '../src/generated/prisma/enums';
 import { createPrismaClient } from '../src/prisma/create-prisma-pg-adapter';
 import { TOPIC_SEED } from '../src/ingestion/topic-mapping';
 
-const prisma = createPrismaClient(process.env.DATABASE_URL!);
+const databaseUrl = process.env.DATABASE_URL;
+if (!databaseUrl) {
+  throw new Error('DATABASE_URL environment variable is required');
+}
+const prisma = createPrismaClient(databaseUrl);
 const FEEDS_DIR = path.join(__dirname, '..', 'data', 'feeds');
 
 type FeedSourceFile = {
@@ -130,7 +134,7 @@ async function main() {
 }
 
 main()
-  .catch((error) => {
+  .catch((error: unknown) => {
     console.error(error);
     process.exit(1);
   })
