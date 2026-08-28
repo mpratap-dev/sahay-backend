@@ -32,7 +32,7 @@ The principle is: **every release must provide meaningful user value**, while te
 - English news ingestion from an initial reliable source.
 - Multi-source English news ingestion.
 - Canonical `ContentItem` model.
-- Geolocation and location association.
+- Geo-location and location association.
 - Authentication and user profile storage.
 - Basic relevance/ranking engine using location, interests, profile, recency, importance, and confidence.
 - Feedback collection and persistent user preference signals.

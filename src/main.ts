@@ -4,6 +4,7 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module';
+import { parseCorsOrigins } from './config/cors-origins';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
@@ -19,7 +20,10 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
   if (configService.get('NODE_ENV') !== 'production') {
-    app.enableCors({ origin: 'http://localhost:3000' });
+    const origins = parseCorsOrigins(configService.get<string>('CORS_ORIGINS'));
+    if (origins.length > 0) {
+      app.enableCors({ origin: origins });
+    }
   }
 
   const swaggerConfig = new DocumentBuilder()

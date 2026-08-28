@@ -16,6 +16,7 @@ import { SourcesModule } from './sources/sources.module';
     ConfigModule.forRoot({
       isGlobal: true,
       validate: validateEnv,
+      envFilePath: ['.env', '.env.dev'],
     }),
     LoggerModule.forRoot({
       pinoHttp: {
