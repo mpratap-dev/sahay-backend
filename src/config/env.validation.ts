@@ -12,6 +12,9 @@ export const envSchema = z.object({
   REDIS_HOST: z.string().min(1).default('localhost'),
 
   REDIS_PORT: z.coerce.number().int().positive().default(6379),
+
+  /** Comma-separated CORS origins or bare ports (dev only). Example: 3000,59012 */
+  CORS_ORIGINS: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;
