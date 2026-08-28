@@ -79,63 +79,71 @@ export class NormalizationService {
         rawArticle.sourceFeed.rawCategoryLabel,
       );
 
-      let createdArticleId: string | null = null;
+      const createdContentItemId = await this.prisma.$transaction(
+        async (tx) => {
+          let newId: string | null = null;
+          const existingArticle = await tx.article.findUnique({
+            where: { rawArticleId: rawArticle.id },
+          });
 
-      await this.prisma.$transaction(async (tx) => {
-        const existingArticle = await tx.article.findUnique({
-          where: { rawArticleId: rawArticle.id },
-        });
+          if (!existingArticle) {
+            const topics =
+              topicSlugs.length > 0
+                ? await tx.topic.findMany({
+                    where: { slug: { in: topicSlugs } },
+                    select: { id: true },
+                  })
+                : [];
 
-        if (!existingArticle) {
-          const topics =
-            topicSlugs.length > 0
-              ? await tx.topic.findMany({
-                  where: { slug: { in: topicSlugs } },
-                  select: { id: true },
-                })
-              : [];
+            const created = await tx.contentItem.create({
+              data: {
+                type: 'NEWS_ARTICLE',
+                title: normalized.title,
+                summary: normalized.summary,
+                language: normalized.language,
+                languageConfidence: normalized.languageConfidence,
+                publishedAt,
+                titleFingerprint: fingerprint,
+                categoryId: rawArticle.sourceFeed.categoryId,
+                article: {
+                  create: {
+                    rawArticleId: rawArticle.id,
+                    sourceId: rawArticle.sourceFeed.sourceId,
+                    url: normalized.url,
+                    imageUrl: normalized.imageUrl,
+                    fetchedAt: rawArticle.fetchedAt,
+                    articleTopics:
+                      topics.length > 0
+                        ? {
+                            create: topics.map((topic) => ({
+                              topicId: topic.id,
+                              source: ArticleTopicSource.FEED_CATEGORY,
+                              confidence: 1,
+                            })),
+                          }
+                        : undefined,
+                  },
+                },
+              },
+            });
+            newId = created.id;
+          }
 
-          const created = await tx.article.create({
+          await tx.rawArticle.update({
+            where: { id: rawArticle.id },
             data: {
-              rawArticleId: rawArticle.id,
-              sourceId: rawArticle.sourceFeed.sourceId,
-              title: normalized.title,
-              summary: normalized.summary,
-              url: normalized.url,
-              imageUrl: normalized.imageUrl,
-              language: normalized.language,
-              languageConfidence: normalized.languageConfidence,
-              publishedAt,
-              fetchedAt: rawArticle.fetchedAt,
-              titleFingerprint: fingerprint,
-              categoryId: rawArticle.sourceFeed.categoryId,
-              articleTopics:
-                topics.length > 0
-                  ? {
-                      create: topics.map((topic) => ({
-                        topicId: topic.id,
-                        source: ArticleTopicSource.FEED_CATEGORY,
-                        confidence: 1,
-                      })),
-                    }
-                  : undefined,
+              processed: true,
+              processedAt: new Date(),
+              processingError: null,
             },
           });
-          createdArticleId = created.id;
-        }
 
-        await tx.rawArticle.update({
-          where: { id: rawArticle.id },
-          data: {
-            processed: true,
-            processedAt: new Date(),
-            processingError: null,
-          },
-        });
-      });
+          return newId;
+        },
+      );
 
-      if (createdArticleId) {
-        await this.articleDedupService.linkAfterCreate(createdArticleId);
+      if (createdContentItemId) {
+        await this.articleDedupService.linkAfterCreate(createdContentItemId);
       }
 
       return true;
@@ -156,8 +164,7 @@ export class NormalizationService {
 
   getImageUrl(payload: Record<string, unknown>): string | null {
     const media = payload.media as
-      | { contents: { url: string; medium: string }[] }
-      | undefined;
+      { contents: { url: string; medium: string }[] } | undefined;
     if (media && media.contents.length > 0) {
       for (const content of media.contents) {
         if (content.medium === 'image') {
@@ -182,9 +189,7 @@ export class NormalizationService {
     }
 
     const mediaContent = payload['media:content'] as
-      | Record<string, unknown>
-      | Record<string, unknown>[]
-      | undefined;
+      Record<string, unknown> | Record<string, unknown>[] | undefined;
 
     if (Array.isArray(mediaContent)) {
       for (const media of mediaContent) {
@@ -197,9 +202,7 @@ export class NormalizationService {
     }
 
     const mediaThumbnail = payload['media:thumbnail'] as
-      | Record<string, unknown>
-      | Record<string, unknown>[]
-      | undefined;
+      Record<string, unknown> | Record<string, unknown>[] | undefined;
 
     if (Array.isArray(mediaThumbnail)) {
       for (const thumb of mediaThumbnail) {

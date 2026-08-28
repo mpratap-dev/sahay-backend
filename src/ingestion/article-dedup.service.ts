@@ -14,47 +14,55 @@ export const DEDUP_SCAN_LIMIT = 200;
 export class ArticleDedupService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async linkAfterCreate(articleId: string): Promise<void> {
-    const article = await this.prisma.article.findUnique({
-      where: { id: articleId },
-      include: { source: { select: { trustTier: true } } },
+  async linkAfterCreate(contentItemId: string): Promise<void> {
+    const contentItem = await this.prisma.contentItem.findUnique({
+      where: { id: contentItemId },
+      include: {
+        article: { include: { source: { select: { trustTier: true } } } },
+      },
     });
 
-    if (!article?.titleFingerprint || !article.publishedAt) {
+    if (!contentItem?.titleFingerprint || !contentItem.publishedAt) {
       return;
     }
 
     const windowStart = new Date(
-      article.publishedAt.getTime() - DEDUP_WINDOW_MS,
+      contentItem.publishedAt.getTime() - DEDUP_WINDOW_MS,
     );
-    const windowEnd = new Date(article.publishedAt.getTime() + DEDUP_WINDOW_MS);
+    const windowEnd = new Date(
+      contentItem.publishedAt.getTime() + DEDUP_WINDOW_MS,
+    );
 
-    const fingerprintMatches = await this.prisma.article.findMany({
+    const fingerprintMatches = await this.prisma.contentItem.findMany({
       where: {
-        id: { not: article.id },
-        language: article.language,
-        titleFingerprint: article.titleFingerprint,
+        id: { not: contentItem.id },
+        language: contentItem.language,
+        titleFingerprint: contentItem.titleFingerprint,
         publishedAt: { gte: windowStart, lte: windowEnd },
       },
-      include: { source: { select: { trustTier: true } } },
+      include: {
+        article: { include: { source: { select: { trustTier: true } } } },
+      },
     });
 
     let matches = fingerprintMatches;
 
     if (matches.length === 0) {
-      const recent = await this.prisma.article.findMany({
+      const recent = await this.prisma.contentItem.findMany({
         where: {
-          id: { not: article.id },
-          language: article.language,
+          id: { not: contentItem.id },
+          language: contentItem.language,
           titleFingerprint: { not: null },
           publishedAt: { gte: windowStart, lte: windowEnd },
         },
         take: DEDUP_SCAN_LIMIT,
         orderBy: { publishedAt: 'desc' },
-        include: { source: { select: { trustTier: true } } },
+        include: {
+          article: { include: { source: { select: { trustTier: true } } } },
+        },
       });
 
-      const tokens = titleTokens(article.title);
+      const tokens = titleTokens(contentItem.title);
       matches = recent.filter(
         (candidate) =>
           jaccardSimilarity(tokens, titleTokens(candidate.title)) >=
@@ -69,16 +77,18 @@ export class ArticleDedupService {
     const extraIds = [
       ...new Set(
         matches
-          .map((match) => match.canonicalArticleId)
-          .filter((id): id is string => Boolean(id) && id !== article.id),
+          .map((match) => match.canonicalContentId)
+          .filter((id): id is string => Boolean(id) && id !== contentItem.id),
       ),
     ];
 
     const extras =
       extraIds.length > 0
-        ? await this.prisma.article.findMany({
+        ? await this.prisma.contentItem.findMany({
             where: { id: { in: extraIds } },
-            include: { source: { select: { trustTier: true } } },
+            include: {
+              article: { include: { source: { select: { trustTier: true } } } },
+            },
           })
         : [];
 
@@ -94,9 +104,10 @@ export class ArticleDedupService {
 
     const addToCluster = (row: {
       id: string;
+      title: string;
       publishedAt: Date | null;
       createdAt: Date;
-      source: { trustTier: number };
+      article: { source: { trustTier: number } } | null;
     }) => {
       if (!row.publishedAt) {
         return;
@@ -105,16 +116,16 @@ export class ArticleDedupService {
         id: row.id,
         publishedAt: row.publishedAt,
         createdAt: row.createdAt,
-        trustTier: row.source.trustTier,
+        trustTier: row.article?.source.trustTier ?? 2,
       });
     };
 
-    addToCluster(article);
+    addToCluster({ ...contentItem, article: contentItem.article ?? null });
     for (const match of matches) {
-      addToCluster(match);
+      addToCluster({ ...match, article: match.article ?? null });
     }
     for (const extra of extras) {
-      addToCluster(extra);
+      addToCluster({ ...extra, article: extra.article ?? null });
     }
 
     const cluster = [...clusterById.values()];
@@ -126,10 +137,10 @@ export class ArticleDedupService {
 
     await this.prisma.$transaction(
       cluster.map((member) =>
-        this.prisma.article.update({
+        this.prisma.contentItem.update({
           where: { id: member.id },
           data: {
-            canonicalArticleId: member.id === winner.id ? null : winner.id,
+            canonicalContentId: member.id === winner.id ? null : winner.id,
           },
         }),
       ),

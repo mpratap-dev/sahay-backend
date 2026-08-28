@@ -5,6 +5,8 @@ import { SourcesService } from '../sources/sources.service';
 import { FetcherRegistry } from './fetchers/fetcher.registry';
 import { NormalizationService } from './normalization.service';
 
+const anyDate: unknown = expect.any(Date);
+
 describe('IngestionService deduplication', () => {
   let service: IngestionService;
 
@@ -106,7 +108,7 @@ describe('IngestionService deduplication', () => {
     expect(prisma.sourceFeed.update).toHaveBeenCalledWith({
       where: { id: 'feed-1' },
       data: {
-        lastFetchedAt: expect.any(Date),
+        lastFetchedAt: anyDate,
         lastError: null,
         consecutiveFailures: 0,
         lastStatus: 'ok',
@@ -211,7 +213,7 @@ describe('IngestionService feed isolation', () => {
     expect(prisma.sourceFeed.update).toHaveBeenCalledWith({
       where: { id: 'feed-ok' },
       data: {
-        lastFetchedAt: expect.any(Date),
+        lastFetchedAt: anyDate,
         lastError: null,
         consecutiveFailures: 0,
         lastStatus: 'ok',
@@ -230,8 +232,8 @@ describe('IngestionService feed isolation', () => {
   it('normalizes even when some feeds fail', async () => {
     await service.ingestSource('source-1');
 
-    expect(normalizationService.normalizeUnprocessedForSource).toHaveBeenCalledWith(
-      'source-1',
-    );
+    expect(
+      normalizationService.normalizeUnprocessedForSource,
+    ).toHaveBeenCalledWith('source-1');
   });
 });

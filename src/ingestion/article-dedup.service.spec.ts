@@ -8,20 +8,20 @@ describe('ArticleDedupService', () => {
   const publishedAt = new Date('2024-01-02T12:00:00Z');
   const createdAt = new Date('2024-01-02T12:05:00Z');
 
-  const article = {
+  const contentItem = {
     findUnique: jest.fn(),
     findMany: jest.fn(),
     update: jest.fn(),
   };
 
   const prisma = {
-    article,
+    contentItem,
     $transaction: jest.fn(async (ops: Promise<unknown>[]) => Promise.all(ops)),
   };
 
   beforeEach(async () => {
     jest.clearAllMocks();
-    article.update.mockResolvedValue({});
+    contentItem.update.mockResolvedValue({});
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -41,8 +41,8 @@ describe('ArticleDedupService', () => {
       language: 'en',
       publishedAt,
       createdAt,
-      canonicalArticleId: null,
-      source: { trustTier: 2 },
+      canonicalContentId: null,
+      article: { source: { trustTier: 2 } },
     };
     const existing = {
       id: 'hindu-1',
@@ -51,37 +51,37 @@ describe('ArticleDedupService', () => {
       language: 'en',
       publishedAt,
       createdAt: new Date('2024-01-02T11:00:00Z'),
-      canonicalArticleId: null,
-      source: { trustTier: 1 },
+      canonicalContentId: null,
+      article: { source: { trustTier: 1 } },
     };
 
-    article.findUnique.mockResolvedValue(incoming);
-    article.findMany.mockResolvedValueOnce([existing]);
+    contentItem.findUnique.mockResolvedValue(incoming);
+    contentItem.findMany.mockResolvedValueOnce([existing]);
 
     await service.linkAfterCreate('ani-1');
 
-    expect(article.update).toHaveBeenCalledWith({
+    expect(contentItem.update).toHaveBeenCalledWith({
       where: { id: 'hindu-1' },
-      data: { canonicalArticleId: null },
+      data: { canonicalContentId: null },
     });
-    expect(article.update).toHaveBeenCalledWith({
+    expect(contentItem.update).toHaveBeenCalledWith({
       where: { id: 'ani-1' },
-      data: { canonicalArticleId: 'hindu-1' },
+      data: { canonicalContentId: 'hindu-1' },
     });
   });
 
   it('does not link unrelated titles', async () => {
-    article.findUnique.mockResolvedValue({
+    contentItem.findUnique.mockResolvedValue({
       id: 'a',
       title: 'Metro disruption in Dwarka',
       titleFingerprint: 'disruption dwarka metro',
       language: 'en',
       publishedAt,
       createdAt,
-      canonicalArticleId: null,
-      source: { trustTier: 2 },
+      canonicalContentId: null,
+      article: { source: { trustTier: 2 } },
     });
-    article.findMany.mockResolvedValueOnce([]).mockResolvedValueOnce([
+    contentItem.findMany.mockResolvedValueOnce([]).mockResolvedValueOnce([
       {
         id: 'b',
         title: 'Budget session begins in Parliament',
@@ -89,13 +89,13 @@ describe('ArticleDedupService', () => {
         language: 'en',
         publishedAt,
         createdAt,
-        canonicalArticleId: null,
-        source: { trustTier: 2 },
+        canonicalContentId: null,
+        article: { source: { trustTier: 2 } },
       },
     ]);
 
     await service.linkAfterCreate('a');
 
-    expect(article.update).not.toHaveBeenCalled();
+    expect(contentItem.update).not.toHaveBeenCalled();
   });
 });

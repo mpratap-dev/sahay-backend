@@ -57,6 +57,7 @@ export const ModelName = {
   Topic: 'Topic',
   ArticleTopic: 'ArticleTopic',
   RawArticle: 'RawArticle',
+  ContentItem: 'ContentItem',
   Article: 'Article'
 } as const
 
@@ -164,24 +165,36 @@ export const RawArticleScalarFieldEnum = {
 export type RawArticleScalarFieldEnum = (typeof RawArticleScalarFieldEnum)[keyof typeof RawArticleScalarFieldEnum]
 
 
-export const ArticleScalarFieldEnum = {
+export const ContentItemScalarFieldEnum = {
   id: 'id',
-  rawArticleId: 'rawArticleId',
-  sourceId: 'sourceId',
+  type: 'type',
+  status: 'status',
   title: 'title',
   summary: 'summary',
-  url: 'url',
-  imageUrl: 'imageUrl',
   language: 'language',
   languageConfidence: 'languageConfidence',
   publishedAt: 'publishedAt',
-  fetchedAt: 'fetchedAt',
   categoryId: 'categoryId',
   entities: 'entities',
   urgency: 'urgency',
   confidence: 'confidence',
   titleFingerprint: 'titleFingerprint',
-  canonicalArticleId: 'canonicalArticleId',
+  canonicalContentId: 'canonicalContentId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ContentItemScalarFieldEnum = (typeof ContentItemScalarFieldEnum)[keyof typeof ContentItemScalarFieldEnum]
+
+
+export const ArticleScalarFieldEnum = {
+  id: 'id',
+  contentItemId: 'contentItemId',
+  rawArticleId: 'rawArticleId',
+  sourceId: 'sourceId',
+  url: 'url',
+  imageUrl: 'imageUrl',
+  fetchedAt: 'fetchedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

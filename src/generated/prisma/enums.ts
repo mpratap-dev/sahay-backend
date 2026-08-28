@@ -39,3 +39,22 @@ export const ArticleTopicSource = {
 } as const
 
 export type ArticleTopicSource = (typeof ArticleTopicSource)[keyof typeof ArticleTopicSource]
+
+
+export const ContentType = {
+  NEWS_ARTICLE: 'NEWS_ARTICLE',
+  CIVIC_ISSUE: 'CIVIC_ISSUE',
+  ALERT: 'ALERT'
+} as const
+
+export type ContentType = (typeof ContentType)[keyof typeof ContentType]
+
+
+export const ContentStatus = {
+  PUBLISHED: 'PUBLISHED',
+  DRAFT: 'DRAFT',
+  ARCHIVED: 'ARCHIVED',
+  FLAGGED: 'FLAGGED'
+} as const
+
+export type ContentStatus = (typeof ContentStatus)[keyof typeof ContentStatus]
