@@ -160,6 +160,26 @@ The exact scoring weights should be defined during technical design and validate
 
 ---
 
+## Authentication
+
+Identity lives on the backend. Clients collect an identifier or a native Google/Apple ID token, then call SAHAY APIs. They never generate OTPs, never verify IdP tokens, and never mint session tokens.
+
+**Unified sign-in:** the same endpoints create a user on first success and return that user later. There are no separate register vs login routes. No passwords.
+
+**Identifiers:** every `User` must have a verified `phone` and/or verified `email` (`CHECK` plus application rules). Uniqueness of a person is those values (unique when set). `AuthIdentity` stores Google/Apple `sub` (and phone/email subjects) so return visits match the same account when Apple omits email after the first consent.
+
+**Channels (R1):**
+
+- SMS OTP (MSG91 in production; console/stub in development until DLT/wallet exists).
+- Email OTP (Resend when keys are set; console otherwise).
+- Google and Apple via native ID tokens (`POST /auth/oauth`). Hide My Email is a real unique `…@privaterelay.appleid.com` address — store it, do not reject it, do not try to recover the real inbox.
+
+**Session:** short-lived access JWT plus opaque refresh tokens (hashed at rest). Content APIs stay public until personalization requires auth.
+
+**Out of scope here:** profile fields, WhatsApp OTP, linking extra methods from settings, authenticating the content feed.
+
+---
+
 ## “How Does This Affect Me?”
 
 This should become a core SAHAY capability.

@@ -44,6 +44,49 @@ enum ContentStatus {
   FLAGGED
 }
 
+enum AuthProvider {
+  GOOGLE
+  APPLE
+  PHONE
+  EMAIL
+}
+
+model User {
+  id        String   @id @default(cuid())
+  phone     String?  @unique
+  email     String?  @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  identities    AuthIdentity[]
+  refreshTokens RefreshToken[]
+}
+
+model AuthIdentity {
+  id              String       @id @default(cuid())
+  userId          String
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider        AuthProvider
+  providerSubject String
+  createdAt       DateTime     @default(now())
+
+  @@unique([provider, providerSubject])
+  @@index([userId])
+}
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  deviceId  String?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
 // Publisher (one row per outlet). Pollable endpoints live on SourceFeed.
 model Source {
   id          String     @id @default(cuid())
