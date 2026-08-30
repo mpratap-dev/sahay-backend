@@ -4,11 +4,13 @@ import { BullModule } from '@nestjs/bullmq';
 import { ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { LoggerModule } from 'nestjs-pino';
+import { AuthModule } from './auth/auth.module';
 import { ContentModule } from './content/content.module';
 import { validateEnv } from './config/env.validation';
 import { HealthModule } from './health/health.module';
 import { IngestionModule } from './ingestion/ingestion.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { RedisModule } from './redis/redis.module';
 import { SourcesModule } from './sources/sources.module';
 
 @Module({
@@ -38,6 +40,8 @@ import { SourcesModule } from './sources/sources.module';
       inject: [ConfigService],
     }),
     PrismaModule,
+    RedisModule,
+    AuthModule,
     SourcesModule,
     HealthModule,
     IngestionModule.register(),

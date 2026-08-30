@@ -30,6 +30,7 @@ async function bootstrap() {
     .setTitle('SAHAY API')
     .setDescription('SAHAY civic intelligence platform API')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, document);
