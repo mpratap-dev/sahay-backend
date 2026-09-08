@@ -3,8 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { SourcesService } from '../sources/sources.service';
 
-const INGESTION_QUEUE = 'ingestion';
-const FETCH_SOURCE_JOB = 'fetch-source';
+export const INGESTION_QUEUE = 'ingestion';
+export const FETCH_SOURCE_JOB = 'fetch-source';
 
 @Injectable()
 export class IngestionQueueService {

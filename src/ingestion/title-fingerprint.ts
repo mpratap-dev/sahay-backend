@@ -28,7 +28,7 @@ const STOPWORDS = new Set([
 ]);
 
 const PUBLISHER_SUFFIX =
-  /\s*[-–—|:]\s*(the hindu|ani|press trust of india|pti)\s*$/i;
+  /\s*[-–—|:]\s*(the indian express|indian express|the hindu|ani|press trust of india|pti)\s*$/i;
 
 export function titleTokens(title: string): string[] {
   const withoutSuffix = title.replace(PUBLISHER_SUFFIX, '');
