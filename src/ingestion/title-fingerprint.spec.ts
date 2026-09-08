@@ -8,7 +8,11 @@ describe('titleFingerprint', () => {
   it('matches the same story after dropping publisher suffixes and stopwords', () => {
     const hindu = titleFingerprint('PM visits Delhi after floods - The Hindu');
     const ani = titleFingerprint('PM visits Delhi after floods | ANI');
+    const ie = titleFingerprint(
+      'PM visits Delhi after floods - The Indian Express',
+    );
     expect(hindu).toBe(ani);
+    expect(hindu).toBe(ie);
     expect(hindu).toBeTruthy();
   });
 
