@@ -86,3 +86,4 @@ Adding a source or OTP channel is a new adapter, not a new subsystem.
 - Strict TypeScript: no `any` / stray `as` / `!` / `@ts-ignore`?
 - Logic in the right layer (controller vs service vs pure helper vs adapter)?
 - Tests updated for the new behavior?
+- Run `pnpm lint` and `pnpm build` on the change; fix issues before finishing.

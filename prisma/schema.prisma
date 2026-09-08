@@ -51,6 +51,29 @@ enum AuthProvider {
   EMAIL
 }
 
+enum LocationKind {
+  CURRENT
+  HOMETOWN
+}
+
+enum InterestArea {
+  TECHNOLOGY_SCIENCE_ENGINEERING
+  BUSINESS_FINANCE_ENTREPRENEURSHIP
+  LAW_GOVERNMENT_PUBLIC_SERVICES
+  EDUCATION_HEALTHCARE_MEDIA_LIFESTYLE
+}
+
+enum UserInterestStatus {
+  FOLLOWED
+  EXCLUDED
+}
+
+enum UserInterestSource {
+  MANUAL
+  ONBOARDING
+  AI_RECOMMENDATION
+}
+
 model User {
   id        String   @id @default(cuid())
   phone     String?  @unique
@@ -58,8 +81,70 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  identities    AuthIdentity[]
-  refreshTokens RefreshToken[]
+  identities     AuthIdentity[]
+  refreshTokens  RefreshToken[]
+  locations      UserLocation[]
+  interestAreas  UserInterestArea[]
+  interests      UserInterest[]
+}
+
+model UserLocation {
+  id     String       @id @default(cuid())
+  userId String
+  user   User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind   LocationKind
+
+  latitude  Decimal
+  longitude Decimal
+
+  locality     String?
+  adminArea    String?
+  countryCode  String?
+  postalCode   String?
+  placeId      String?
+
+  capturedAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, kind])
+}
+
+model UserInterestArea {
+  id        String       @id @default(cuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  area      InterestArea
+  createdAt DateTime     @default(now())
+
+  @@unique([userId, area])
+  @@index([userId])
+}
+
+model UserInterest {
+  id      String             @id @default(cuid())
+  userId  String
+  user    User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topicId String
+  topic   Topic              @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  status  UserInterestStatus
+  source  UserInterestSource @default(MANUAL)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, topicId])
+  @@index([userId, status])
+}
+
+model InterestAreaTopic {
+  id      String       @id @default(cuid())
+  area    InterestArea
+  topicId String
+  topic   Topic        @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@unique([area, topicId])
+  @@index([area])
 }
 
 model AuthIdentity {
@@ -159,7 +244,9 @@ model Topic {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  articleTopics ArticleTopic[]
+  articleTopics      ArticleTopic[]
+  userInterests      UserInterest[]
+  interestAreaTopics InterestAreaTopic[]
 }
 
 model ArticleTopic {

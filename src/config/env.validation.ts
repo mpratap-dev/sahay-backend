@@ -36,7 +36,7 @@ export const envSchema = z
     RESEND_API_KEY: z.string().optional(),
     OTP_EMAIL_FROM: z.string().optional(),
 
-    GOOGLE_CLIENT_IDS: z.string().optional(),
+    GOOGLE_CLIENT_IDS: z.string().min(1),
     APPLE_CLIENT_IDS: z.string().optional(),
   })
   .superRefine((data, ctx) => {

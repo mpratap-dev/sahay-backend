@@ -28,14 +28,12 @@ describe('validateEnv', () => {
   });
 
   it('requires MSG91 keys when sms provider is msg91', () => {
-    expect(() =>
-      validateEnv({ ...base, OTP_SMS_PROVIDER: 'msg91' }),
-    ).toThrow();
+    expect(() => validateEnv({ ...base, OTP_SMS_PROVIDER: 'msg91' })).toThrow();
+    expect(() => validateEnv({ ...base, OTP_SMS_PROVIDER: 'msg91' })).toThrow();
   });
 
   it('rejects production with default JWT secrets', () => {
-    expect(() =>
-      validateEnv({ ...base, NODE_ENV: 'production' }),
-    ).toThrow();
+    expect(() => validateEnv({ ...base, NODE_ENV: 'production' })).toThrow();
+    expect(() => validateEnv({ ...base, NODE_ENV: 'production' })).toThrow();
   });
 });

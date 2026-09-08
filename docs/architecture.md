@@ -132,12 +132,14 @@ SAHAY answers:
 
 Potential signals include:
 
-- Current location and hometown (MVP: max **2** places via `UserLocation` with kinds `CURRENT` | `HOMETOWN`).
+- Current location and hometown (MVP: max **2** places via `UserLocation` with kinds `CURRENT` | `HOMETOWN`). V1 writes **current device location only** (`latitude` / `longitude` required; optional OS placemark: `locality`, `adminArea`, `countryCode`, `postalCode`). `placeId` is reserved for later civic geo. `HOMETOWN` exists on the enum but has no write API yet.
 - Later (pro): up to **5** saved places (work, family, etc.) on the same `UserLocation` table — product cap, not a schema rewrite.
 - Age or age group.
 - Occupation (maps to `Topic`s later via `OccupationTopic`, not article tags).
 - Constituency (derive from a location slot when civic geo exists).
-- Followed topics/interests (`UserInterest` → `Topic`).
+- **Onboarding interest areas** (`UserInterestArea` → `InterestArea` enum). These four buckets are **signals for later topic recommendation**, not the user's topics: Technology/Science/Engineering; Business/Finance/Entrepreneurship; Law/Government/Public Services; Education/Healthcare/Media/Lifestyle. `InterestAreaTopic` is a seeded prior from area → catalogue `Topic` slugs. Do not auto-follow those topics.
+- Followed topics (`UserInterest` → `Topic`) with status `FOLLOWED` | `EXCLUDED`. Bulk `PUT /me/topics` patches by slug (`followed` / `unfollowed`); unfollow stores `EXCLUDED` as a negative signal (row is not deleted). AI curation of recommended topics is later.
+- Completeness for onboarding: `GET /me/personalization` reports `hasLocation`, `hasInterestAreas`, `hasFollowedTopics` from stored rows.
 - Previous interactions.
 - Issues reported by the user.
 - Poll participation/interests.
@@ -146,7 +148,7 @@ Potential signals include:
 - Urgency.
 - Recency.
 
-Do not put `currentCityId` / `hometownCityId` as columns on `User`. Use a `UserLocation` child table so feed candidate generation stays `IN (placeIds)` as the place count grows.
+Do not put `currentCityId` / `hometownCityId` as columns on `User`. Use a `UserLocation` child table so feed candidate generation stays `IN (placeIds)` as the place count grows. Identity stays on `/auth`; profile lives on `/me/*`.
 
 ### Ranking model
 
