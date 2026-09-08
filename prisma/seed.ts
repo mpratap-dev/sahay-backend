@@ -2,8 +2,10 @@ import 'dotenv/config';
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { SourceType } from '../src/generated/prisma/enums';
-import { createPrismaClient } from '../src/prisma/create-prisma-pg-adapter';
+import type { InterestArea } from '../src/generated/prisma/enums';
 import { TOPIC_SEED } from '../src/ingestion/topic-mapping';
+import { INTEREST_AREA_TOPIC_SLUGS } from '../src/personalization/interest-areas';
+import { createPrismaClient } from '../src/prisma/create-prisma-pg-adapter';
 
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) {
@@ -70,6 +72,32 @@ async function upsertTopics() {
   console.log(`Seeded ${TOPIC_SEED.length} topics`);
 }
 
+async function upsertInterestAreaTopics() {
+  let count = 0;
+  for (const [area, slugs] of Object.entries(INTEREST_AREA_TOPIC_SLUGS)) {
+    for (const slug of slugs) {
+      const topic = await prisma.topic.findUnique({ where: { slug } });
+      if (!topic) {
+        throw new Error(
+          `Cannot map interest area ${area}: missing topic ${slug}`,
+        );
+      }
+      await prisma.interestAreaTopic.upsert({
+        where: {
+          area_topicId: {
+            area: area as InterestArea,
+            topicId: topic.id,
+          },
+        },
+        update: {},
+        create: { area: area as InterestArea, topicId: topic.id },
+      });
+      count += 1;
+    }
+  }
+  console.log(`Seeded ${count} interest-area topic mappings`);
+}
+
 async function upsertFeeds(sourceId: string, urls: string[]) {
   const urlSet = new Set(urls);
 
@@ -107,6 +135,7 @@ async function upsertFeeds(sourceId: string, urls: string[]) {
 
 async function main() {
   await upsertTopics();
+  await upsertInterestAreaTopics();
 
   const feedSources = await loadFeedSourceFiles();
 

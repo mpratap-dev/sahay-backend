@@ -9,6 +9,7 @@ import { ContentModule } from './content/content.module';
 import { validateEnv } from './config/env.validation';
 import { HealthModule } from './health/health.module';
 import { IngestionModule } from './ingestion/ingestion.module';
+import { PersonalizationModule } from './personalization/personalization.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RedisModule } from './redis/redis.module';
 import { SourcesModule } from './sources/sources.module';
@@ -18,7 +19,7 @@ import { SourcesModule } from './sources/sources.module';
     ConfigModule.forRoot({
       isGlobal: true,
       validate: validateEnv,
-      envFilePath: ['.env', '.env.dev'],
+      envFilePath: ['.env.local', '.env'],
     }),
     LoggerModule.forRoot({
       pinoHttp: {
@@ -46,6 +47,7 @@ import { SourcesModule } from './sources/sources.module';
     HealthModule,
     IngestionModule.register(),
     ContentModule,
+    PersonalizationModule,
   ],
 })
 export class AppModule {}

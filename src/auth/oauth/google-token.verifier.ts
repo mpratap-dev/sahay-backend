@@ -13,6 +13,11 @@ export class GoogleTokenVerifier implements OauthTokenVerifier {
     const audiences = parseCsv(
       this.configService.get<string>('GOOGLE_CLIENT_IDS'),
     );
+    console.log(
+      'GOOGLE_CLIENT_IDS',
+      this.configService.get<string>('GOOGLE_CLIENT_IDS'),
+    );
+    console.log('audiences', audiences);
     if (audiences.length === 0) {
       throw new ServiceUnavailableException('Google sign-in is not configured');
     }
