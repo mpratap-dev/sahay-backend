@@ -13,11 +13,6 @@ export class GoogleTokenVerifier implements OauthTokenVerifier {
     const audiences = parseCsv(
       this.configService.get<string>('GOOGLE_CLIENT_IDS'),
     );
-    console.log(
-      'GOOGLE_CLIENT_IDS',
-      this.configService.get<string>('GOOGLE_CLIENT_IDS'),
-    );
-    console.log('audiences', audiences);
     if (audiences.length === 0) {
       throw new ServiceUnavailableException('Google sign-in is not configured');
     }
@@ -31,13 +26,39 @@ export class GoogleTokenVerifier implements OauthTokenVerifier {
       throw new Error('Invalid Google token');
     }
 
+    const name = normalizeName(payload.name);
+    const imageUrl = normalizeImageUrl(payload.picture);
+
     return {
       provider: 'GOOGLE',
       subject: payload.sub,
       email: payload.email,
       emailVerified: payload.email_verified === true,
+      ...(name ? { name } : {}),
+      ...(imageUrl ? { imageUrl } : {}),
     };
   }
+}
+
+function normalizeName(value: string | undefined): string | undefined {
+  const trimmed = value?.trim();
+  return trimmed && trimmed.length > 0 ? trimmed : undefined;
+}
+
+function normalizeImageUrl(value: string | undefined): string | undefined {
+  const trimmed = value?.trim();
+  if (!trimmed) {
+    return undefined;
+  }
+  try {
+    const parsed = new URL(trimmed);
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return trimmed;
+    }
+  } catch {
+    return undefined;
+  }
+  return undefined;
 }
 
 function parseCsv(value: string | undefined): string[] {

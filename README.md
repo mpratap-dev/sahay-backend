@@ -1,98 +1,128 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# SAHAY Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+**Smart Access & Holistic Assistance for You** — civic intelligence platform API for Indian citizens (launch geography: Delhi).
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+This NestJS service ingests multi-source signals (news RSS, government, alerts), normalizes them into a canonical content model, and exposes APIs for feed, auth, and personalization.
 
-## Description
+Product context: [`docs/vision.md`](docs/vision.md) · Architecture: [`docs/architecture.md`](docs/architecture.md) · Roadmap: [`docs/roadmap.md`](docs/roadmap.md)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+---
 
-## Project setup
+## Prerequisites
 
-```bash
-$ pnpm install
-```
+- **Node.js** 20+ (LTS recommended)
+- **pnpm** — install via [pnpm.io](https://pnpm.io/installation)
+- **Docker** — for local PostgreSQL and Redis (`docker compose`)
 
-## Compile and run the project
+---
 
-```bash
-# development
-$ pnpm run start
+## First-time setup
 
-# watch mode
-$ pnpm run start:dev
+1. **Clone and install dependencies**
 
-# production mode
-$ pnpm run start:prod
-```
+   ```bash
+   git clone <repo-url>
+   cd sahay-backend
+   pnpm install
+   ```
 
-## Run tests
+2. **Configure environment**
 
-```bash
-# unit tests
-$ pnpm run test
+   ```bash
+   cp .env.example .env
+   ```
 
-# e2e tests
-$ pnpm run test:e2e
+   - Defaults in `.env.example` work for local development (Postgres, Redis, OTP to console).
+   - **`GOOGLE_CLIENT_IDS` is required** — add at least one Google OAuth client ID (comma-separated if multiple). Without it the app will fail env validation at startup.
+   - Optionally set `CORS_ORIGINS` (e.g. `3000,59012`) so the API accepts requests from your frontend dev server.
 
-# test coverage
-$ pnpm run test:cov
-```
+3. **Start PostgreSQL and Redis**
 
-## Deployment
+   ```bash
+   docker compose up -d
+   ```
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+4. **Apply database migrations and generate Prisma client**
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+   ```bash
+   pnpm exec prisma migrate deploy
+   pnpm exec prisma generate
+   ```
 
-```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
-```
+5. **Seed sources, topics, and interest areas**
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+   ```bash
+   pnpm seed
+   ```
 
-## Resources
+6. **Run the API in watch mode**
 
-Check out a few resources that may come in handy when working with NestJS:
+   ```bash
+   pnpm dev
+   ```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+   The server listens on **`http://localhost:3001`** by default (`PORT` in `.env`).
 
-## Support
+---
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## API documentation (Swagger)
 
-## Stay in touch
+With the dev server running, open:
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+**http://localhost:3001/docs**
+
+Swagger UI lists all HTTP endpoints (auth, content feed, personalization, ingestion, health). Use **Authorize** with a Bearer token for protected routes after signing in via the auth flow.
+
+---
+
+## Common commands
+
+| Command | Purpose |
+| --- | --- |
+| `pnpm dev` | Start API with hot reload |
+| `pnpm build` | Compile TypeScript to `dist/` |
+| `pnpm start:prod` | Run compiled production build |
+| `pnpm lint` | ESLint |
+| `pnpm test` | Unit tests |
+| `pnpm test:e2e` | End-to-end tests |
+| `pnpm prisma` | Open Prisma Studio (DB browser) |
+| `pnpm seed` | Re-run database seed |
+
+---
+
+## Tech stack
+
+| Technology | Role |
+| --- | --- |
+| **NestJS** | HTTP API framework, modules, DI, scheduling |
+| **TypeScript** | Application language |
+| **Prisma** | ORM, schema, migrations (`PostgreSQL`) |
+| **PostgreSQL** | Primary data store (content, users, sources) |
+| **Redis** | Job queue backing store for BullMQ |
+| **BullMQ** | Background ingestion jobs (fetch, normalize) |
+| **Zod** | Environment variable validation |
+| **class-validator / class-transformer** | Request DTO validation |
+| **@nestjs/swagger** | OpenAPI spec and Swagger UI at `/docs` |
+| **nestjs-pino** | Structured HTTP logging |
+| **JWT (jose / @nestjs/jwt)** | Access and refresh tokens |
+| **feedsmith** | RSS/Atom feed parsing for ingestion |
+
+---
+
+## Suggested additions to this documentation
+
+Consider adding these over time (not all are needed on day one):
+
+- **Environment variable reference** — table describing every `.env` key, defaults, and when it is required (e.g. MSG91, Resend in production).
+- **Auth flow guide** — how OTP login, refresh tokens, and Google/Apple ID token sign-in work for frontend and API testers.
+- **Ingestion operations** — how to trigger or monitor RSS fetches, read queue/worker logs, and add a new source (pointer to `AGENTS.md` adapter pattern).
+- **Troubleshooting** — Docker port conflicts, migration failures, Redis connection errors, missing `GOOGLE_CLIENT_IDS`.
+- **Contributing** — branch naming, `pnpm lint` / `pnpm build` before PR, link to `AGENTS.md` coding standards.
+- **Deployment** — production checklist (secrets, `prisma migrate deploy`, process manager, health endpoint).
+- **Related repos** — link to the SAHAY frontend/mobile clients when they exist.
+
+---
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Private / UNLICENSED (see `package.json`).

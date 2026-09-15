@@ -7,6 +7,7 @@ import {
   UserInterestStatus,
 } from '../generated/prisma/enums';
 import { PrismaService } from '../prisma/prisma.service';
+import { GoogleGeocodeClient } from './google-geocode.client';
 import { PersonalizationService } from './personalization.service';
 
 describe('PersonalizationService', () => {
@@ -41,6 +42,10 @@ describe('PersonalizationService', () => {
     $transaction: jest.fn(),
   };
 
+  const googleGeocode = {
+    reverseGeocode: jest.fn(),
+  };
+
   const politics = { id: 't-pol', slug: 'politics', name: 'Politics' };
   const sports = { id: 't-spo', slug: 'sports', name: 'Sports' };
   const science = { id: 't-sci', slug: 'science', name: 'Science' };
@@ -55,6 +60,7 @@ describe('PersonalizationService', () => {
       providers: [
         PersonalizationService,
         { provide: PrismaService, useValue: prisma },
+        { provide: GoogleGeocodeClient, useValue: googleGeocode },
       ],
     }).compile();
 
@@ -74,54 +80,77 @@ describe('PersonalizationService', () => {
   });
 
   describe('upsertCurrentLocation', () => {
-    it('upserts CURRENT location and returns numeric coordinates', async () => {
+    it('geocodes then upserts CURRENT location and returns numeric coordinates', async () => {
       const capturedAt = new Date('2026-09-08T10:00:00Z');
+      googleGeocode.reverseGeocode.mockResolvedValue({
+        place_id: 'place-delhi',
+        address_components: [
+          {
+            long_name: 'New Delhi',
+            short_name: 'New Delhi',
+            types: ['locality', 'political'],
+          },
+          {
+            long_name: 'India',
+            short_name: 'in',
+            types: ['country', 'political'],
+          },
+          {
+            long_name: '110001',
+            short_name: '110001',
+            types: ['postal_code'],
+          },
+        ],
+      });
       userLocation.upsert.mockResolvedValue({
         kind: LocationKind.CURRENT,
         latitude: { toNumber: () => 28.6139 },
         longitude: { toNumber: () => 77.209 },
+        ...emptyAddressFields(),
         locality: 'New Delhi',
-        adminArea: 'Delhi',
+        country: 'India',
         countryCode: 'IN',
         postalCode: '110001',
+        placeId: 'place-delhi',
         capturedAt,
       });
 
       const result = await service.upsertCurrentLocation('user-1', {
         latitude: 28.6139,
         longitude: 77.209,
-        locality: 'New Delhi',
-        adminArea: 'Delhi',
-        countryCode: 'in',
-        postalCode: '110001',
       });
 
+      expect(googleGeocode.reverseGeocode).toHaveBeenCalledWith(
+        28.6139,
+        77.209,
+      );
       expect(result.kind).toBe(LocationKind.CURRENT);
       expect(result.latitude).toBe(28.6139);
       expect(result.longitude).toBe(77.209);
-      expect(userLocation.upsert).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: {
-            userId_kind: { userId: 'user-1', kind: LocationKind.CURRENT },
-          },
-          create: expect.objectContaining({
-            kind: LocationKind.CURRENT,
-            countryCode: 'IN',
-          }),
-          }) as unknown,
-        }),
-      );
+      expect(result.locality).toBe('New Delhi');
+      expect(result.countryCode).toBe('IN');
+      const upsertPayload = firstMockCall(userLocation.upsert);
+      expect(upsertPayload).toMatchObject({
+        where: {
+          userId_kind: { userId: 'user-1', kind: LocationKind.CURRENT },
+        },
+        create: {
+          kind: LocationKind.CURRENT,
+          locality: 'New Delhi',
+          country: 'India',
+          countryCode: 'IN',
+          placeId: 'place-delhi',
+        },
+      });
     });
 
     it('never writes HOMETOWN', async () => {
+      googleGeocode.reverseGeocode.mockResolvedValue(null);
       userLocation.upsert.mockResolvedValue({
         kind: LocationKind.CURRENT,
         latitude: 28,
         longitude: 77,
-        locality: null,
-        adminArea: null,
-        countryCode: null,
-        postalCode: null,
+        ...emptyAddressFields(),
         capturedAt: new Date(),
       });
 
@@ -130,14 +159,11 @@ describe('PersonalizationService', () => {
         longitude: 77,
       });
 
-      const call = userLocation.upsert.mock.calls[0][0] as {
-      const calls = userLocation.upsert.mock.calls as unknown[][];
-      const call = calls[0]?.[0] as {
-        where: { userId_kind: { kind: LocationKind } };
-        create: { kind: LocationKind };
-      };
-      expect(call.where.userId_kind.kind).toBe(LocationKind.CURRENT);
-      expect(call.create.kind).toBe(LocationKind.CURRENT);
+      const call = firstMockCall(userLocation.upsert);
+      expect(call).toMatchObject({
+        where: { userId_kind: { kind: LocationKind.CURRENT } },
+        create: { kind: LocationKind.CURRENT },
+      });
       expect(JSON.stringify(call)).not.toContain(LocationKind.HOMETOWN);
     });
   });
@@ -197,25 +223,21 @@ describe('PersonalizationService', () => {
       ]);
       expect(result.excluded.map((row) => row.slug)).toEqual(['sports']);
       expect(userInterest.upsert).toHaveBeenCalledTimes(2);
-      expect(userInterest.upsert).toHaveBeenCalledWith(
-        expect.objectContaining({
-          create: expect.objectContaining({
-            topicId: politics.id,
-            status: UserInterestStatus.FOLLOWED,
-            source: UserInterestSource.MANUAL,
-          }),
-          }) as unknown,
-        }),
-      );
-      expect(userInterest.upsert).toHaveBeenCalledWith(
-        expect.objectContaining({
-          create: expect.objectContaining({
-            topicId: sports.id,
-            status: UserInterestStatus.EXCLUDED,
-          }),
-          }) as unknown,
-        }),
-      );
+      const followedCall = firstMockCall(userInterest.upsert);
+      const excludedCall = mockCallAt(userInterest.upsert, 1);
+      expect(followedCall).toMatchObject({
+        create: {
+          topicId: politics.id,
+          status: UserInterestStatus.FOLLOWED,
+          source: UserInterestSource.MANUAL,
+        },
+      });
+      expect(excludedCall).toMatchObject({
+        create: {
+          topicId: sports.id,
+          status: UserInterestStatus.EXCLUDED,
+        },
+      });
     });
 
     it('rejects unknown slugs', async () => {
@@ -266,10 +288,8 @@ describe('PersonalizationService', () => {
         kind: LocationKind.CURRENT,
         latitude: 28.6,
         longitude: 77.2,
-        locality: null,
-        adminArea: null,
+        ...emptyAddressFields(),
         countryCode: 'IN',
-        postalCode: null,
         capturedAt: new Date('2026-09-08T10:00:00Z'),
       });
       userInterestArea.findMany.mockResolvedValue([
@@ -292,3 +312,36 @@ describe('PersonalizationService', () => {
     });
   });
 });
+
+function emptyAddressFields() {
+  return {
+    premise: null,
+    neighborhood: null,
+    sublocalityLevel3: null,
+    sublocalityLevel2: null,
+    sublocalityLevel1: null,
+    locality: null,
+    administrativeAreaLevel3: null,
+    administrativeAreaLevel2: null,
+    administrativeAreaLevel1: null,
+    country: null,
+    countryCode: null,
+    postalCode: null,
+    placeId: null,
+  };
+}
+
+function mockCallAt(
+  mockFn: { mock: { calls: unknown[][] } },
+  index: number,
+): unknown {
+  const payload = mockFn.mock.calls[index]?.[0];
+  if (payload === undefined) {
+    throw new Error(`Missing mock call at index ${String(index)}`);
+  }
+  return payload;
+}
+
+function firstMockCall(mockFn: { mock: { calls: unknown[][] } }): unknown {
+  return mockCallAt(mockFn, 0);
+}

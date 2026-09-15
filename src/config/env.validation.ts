@@ -38,6 +38,7 @@ export const envSchema = z
 
     GOOGLE_CLIENT_IDS: z.string().min(1),
     APPLE_CLIENT_IDS: z.string().optional(),
+    GOOGLE_MAPS_API_KEY: z.string().min(1).optional(),
   })
   .superRefine((data, ctx) => {
     if (data.NODE_ENV === 'production') {
@@ -60,6 +61,13 @@ export const envSchema = z
           code: 'custom',
           path: ['OTP_PEPPER'],
           message: 'Set OTP_PEPPER in production',
+        });
+      }
+      if (!data.GOOGLE_MAPS_API_KEY) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['GOOGLE_MAPS_API_KEY'],
+          message: 'Set GOOGLE_MAPS_API_KEY in production',
         });
       }
     }

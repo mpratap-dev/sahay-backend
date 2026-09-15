@@ -17,13 +17,19 @@ import {
   TopicViewDto,
   UpsertLocationDto,
 } from './dto/personalization.dto';
+import { GoogleGeocodeClient } from './google-geocode.client';
+import type { CurrentLocationFields } from './google-geocode.types';
 import { INTEREST_AREA_LABELS } from './interest-areas';
+import { mapGeocodeResult } from './map-address-components';
 
 type TopicRow = { id: string; slug: string; name: string };
 
 @Injectable()
 export class PersonalizationService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly googleGeocode: GoogleGeocodeClient,
+  ) {}
 
   async listTopics(): Promise<TopicViewDto[]> {
     const topics = await this.prisma.topic.findMany({
@@ -80,7 +86,37 @@ export class PersonalizationService {
     userId: string,
     dto: UpsertLocationDto,
   ): Promise<LocationViewDto> {
+    const geocodeResult = await this.googleGeocode.reverseGeocode(
+      dto.latitude,
+      dto.longitude,
+    );
+    const fields = mapGeocodeResult(geocodeResult, dto.latitude, dto.longitude);
+    return this.persistCurrentLocation(userId, fields);
+  }
+
+  private async persistCurrentLocation(
+    userId: string,
+    fields: CurrentLocationFields,
+  ): Promise<LocationViewDto> {
     const capturedAt = new Date();
+    const locationData = {
+      latitude: fields.latitude,
+      longitude: fields.longitude,
+      premise: fields.premise,
+      neighborhood: fields.neighborhood,
+      sublocalityLevel3: fields.sublocalityLevel3,
+      sublocalityLevel2: fields.sublocalityLevel2,
+      sublocalityLevel1: fields.sublocalityLevel1,
+      locality: fields.locality,
+      administrativeAreaLevel3: fields.administrativeAreaLevel3,
+      administrativeAreaLevel2: fields.administrativeAreaLevel2,
+      administrativeAreaLevel1: fields.administrativeAreaLevel1,
+      country: fields.country,
+      countryCode: fields.countryCode,
+      postalCode: fields.postalCode,
+      placeId: fields.placeId,
+      capturedAt,
+    };
     const row = await this.prisma.userLocation.upsert({
       where: {
         userId_kind: { userId, kind: LocationKind.CURRENT },
@@ -88,23 +124,9 @@ export class PersonalizationService {
       create: {
         userId,
         kind: LocationKind.CURRENT,
-        latitude: dto.latitude,
-        longitude: dto.longitude,
-        locality: emptyToNull(dto.locality),
-        adminArea: emptyToNull(dto.adminArea),
-        countryCode: emptyToNull(dto.countryCode)?.toUpperCase(),
-        postalCode: emptyToNull(dto.postalCode),
-        capturedAt,
+        ...locationData,
       },
-      update: {
-        latitude: dto.latitude,
-        longitude: dto.longitude,
-        locality: emptyToNull(dto.locality),
-        adminArea: emptyToNull(dto.adminArea),
-        countryCode: emptyToNull(dto.countryCode)?.toUpperCase(),
-        postalCode: emptyToNull(dto.postalCode),
-        capturedAt,
-      },
+      update: locationData,
     });
     return toLocationView(row);
   }
@@ -249,14 +271,6 @@ function uniqueSlugs(values: string[] | undefined): string[] {
   return result;
 }
 
-function emptyToNull(value: string | undefined): string | null {
-  if (value === undefined) {
-    return null;
-  }
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
-}
-
 function toTopicView(topic: TopicRow): TopicViewDto {
   return { id: topic.id, slug: topic.slug, name: topic.name };
 }
@@ -269,20 +283,38 @@ function toLocationView(row: {
   kind: LocationKind;
   latitude: Prisma.Decimal | number;
   longitude: Prisma.Decimal | number;
+  premise: string | null;
+  neighborhood: string | null;
+  sublocalityLevel3: string | null;
+  sublocalityLevel2: string | null;
+  sublocalityLevel1: string | null;
   locality: string | null;
-  adminArea: string | null;
+  administrativeAreaLevel3: string | null;
+  administrativeAreaLevel2: string | null;
+  administrativeAreaLevel1: string | null;
+  country: string | null;
   countryCode: string | null;
   postalCode: string | null;
+  placeId: string | null;
   capturedAt: Date;
 }): LocationViewDto {
   return {
     kind: row.kind,
     latitude: toCoord(row.latitude),
     longitude: toCoord(row.longitude),
+    premise: row.premise,
+    neighborhood: row.neighborhood,
+    sublocalityLevel3: row.sublocalityLevel3,
+    sublocalityLevel2: row.sublocalityLevel2,
+    sublocalityLevel1: row.sublocalityLevel1,
     locality: row.locality,
-    adminArea: row.adminArea,
+    administrativeAreaLevel3: row.administrativeAreaLevel3,
+    administrativeAreaLevel2: row.administrativeAreaLevel2,
+    administrativeAreaLevel1: row.administrativeAreaLevel1,
+    country: row.country,
     countryCode: row.countryCode,
     postalCode: row.postalCode,
+    placeId: row.placeId,
     capturedAt: row.capturedAt,
   };
 }

@@ -2,6 +2,7 @@ import { validateEnv } from './env.validation';
 
 const base = {
   DATABASE_URL: 'postgresql://sahay:sahay@localhost:5432/sahay',
+  GOOGLE_CLIENT_IDS: 'test-google-client-id',
 };
 
 describe('validateEnv', () => {
@@ -35,5 +36,17 @@ describe('validateEnv', () => {
   it('rejects production with default JWT secrets', () => {
     expect(() => validateEnv({ ...base, NODE_ENV: 'production' })).toThrow();
     expect(() => validateEnv({ ...base, NODE_ENV: 'production' })).toThrow();
+  });
+
+  it('requires GOOGLE_MAPS_API_KEY in production', () => {
+    expect(() =>
+      validateEnv({
+        ...base,
+        NODE_ENV: 'production',
+        JWT_ACCESS_SECRET: 'x'.repeat(32),
+        JWT_REFRESH_SECRET: 'y'.repeat(32),
+        OTP_PEPPER: 'p'.repeat(16),
+      }),
+    ).toThrow(/GOOGLE_MAPS_API_KEY/);
   });
 });

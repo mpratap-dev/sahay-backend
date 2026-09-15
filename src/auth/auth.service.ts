@@ -22,6 +22,8 @@ export type AuthUserView = {
   id: string;
   phone: string | null;
   email: string | null;
+  name: string | null;
+  imageUrl: string | null;
   identities: { provider: AuthProvider; providerSubject: string }[];
 };
 
@@ -211,6 +213,7 @@ export class AuthService {
       },
     });
     if (existingIdentity) {
+      await this.backfillProfileFromOauth(existingIdentity.userId, profile);
       return existingIdentity.userId;
     }
 
@@ -222,6 +225,7 @@ export class AuthService {
     if (email) {
       const byEmail = await this.prisma.user.findUnique({ where: { email } });
       if (byEmail) {
+        console.log('byEmail', byEmail);
         await this.prisma.authIdentity.create({
           data: {
             userId: byEmail.id,
@@ -229,12 +233,14 @@ export class AuthService {
             providerSubject: profile.subject,
           },
         });
+        await this.backfillProfileFromOauth(byEmail.id, profile);
         return byEmail.id;
       }
 
       const created = await this.prisma.user.create({
         data: {
           email,
+          ...oauthProfileFields(profile),
           identities: {
             create: {
               provider: profile.provider,
@@ -258,22 +264,59 @@ export class AuthService {
     });
   }
 
+  private async backfillProfileFromOauth(
+    userId: string,
+    profile: OauthProfile,
+  ): Promise<void> {
+    const user = await this.prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+      select: { name: true, imageUrl: true },
+    });
+    console.log('profile', profile);
+    console.log('user', user);
+    const data: { name?: string; imageUrl?: string } = {};
+    if (user.name === null && profile.name) {
+      data.name = profile.name;
+    }
+    if (user.imageUrl === null && profile.imageUrl) {
+      data.imageUrl = profile.imageUrl;
+    }
+
+    if (Object.keys(data).length > 0) {
+      await this.prisma.user.update({ where: { id: userId }, data });
+    }
+  }
+
   private toView(user: {
     id: string;
     phone: string | null;
     email: string | null;
+    name: string | null;
+    imageUrl: string | null;
     identities: { provider: AuthProvider; providerSubject: string }[];
   }): AuthUserView {
     return {
       id: user.id,
       phone: user.phone,
       email: user.email,
+      name: user.name,
+      imageUrl: user.imageUrl,
       identities: user.identities.map((identity) => ({
         provider: identity.provider,
         providerSubject: identity.providerSubject,
       })),
     };
   }
+}
+
+function oauthProfileFields(profile: OauthProfile): {
+  name?: string;
+  imageUrl?: string;
+} {
+  return {
+    ...(profile.name ? { name: profile.name } : {}),
+    ...(profile.imageUrl ? { imageUrl: profile.imageUrl } : {}),
+  };
 }
 
 function isUniqueViolation(error: unknown): boolean {

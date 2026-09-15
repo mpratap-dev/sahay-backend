@@ -5,6 +5,8 @@ export type OauthProfile = {
   subject: string;
   email?: string;
   emailVerified: boolean;
+  name?: string;
+  imageUrl?: string;
 };
 
 export const GOOGLE_TOKEN_VERIFIER = Symbol('GOOGLE_TOKEN_VERIFIER');

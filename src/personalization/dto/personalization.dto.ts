@@ -10,7 +10,6 @@ import {
   IsLongitude,
   IsOptional,
   IsString,
-  MaxLength,
 } from 'class-validator';
 import { InterestArea, LocationKind } from '../../generated/prisma/enums';
 
@@ -47,16 +46,43 @@ export class LocationViewDto {
   longitude!: number;
 
   @ApiPropertyOptional()
+  premise!: string | null;
+
+  @ApiPropertyOptional()
+  neighborhood!: string | null;
+
+  @ApiPropertyOptional()
+  sublocalityLevel3!: string | null;
+
+  @ApiPropertyOptional()
+  sublocalityLevel2!: string | null;
+
+  @ApiPropertyOptional()
+  sublocalityLevel1!: string | null;
+
+  @ApiPropertyOptional()
   locality!: string | null;
 
   @ApiPropertyOptional()
-  adminArea!: string | null;
+  administrativeAreaLevel3!: string | null;
+
+  @ApiPropertyOptional()
+  administrativeAreaLevel2!: string | null;
+
+  @ApiPropertyOptional()
+  administrativeAreaLevel1!: string | null;
+
+  @ApiPropertyOptional()
+  country!: string | null;
 
   @ApiPropertyOptional()
   countryCode!: string | null;
 
   @ApiPropertyOptional()
   postalCode!: string | null;
+
+  @ApiPropertyOptional()
+  placeId!: string | null;
 
   @ApiProperty()
   capturedAt!: Date;
@@ -100,30 +126,6 @@ export class UpsertLocationDto {
   @Type(() => Number)
   @IsLongitude()
   longitude!: number;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  @MaxLength(200)
-  locality?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  @MaxLength(200)
-  adminArea?: string;
-
-  @ApiPropertyOptional({ example: 'IN' })
-  @IsOptional()
-  @IsString()
-  @MaxLength(2)
-  countryCode?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  @MaxLength(20)
-  postalCode?: string;
 }
 
 export class ReplaceInterestAreasDto {

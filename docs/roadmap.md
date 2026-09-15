@@ -20,7 +20,7 @@ The principle is: **every release must provide meaningful user value**, while te
 
 ### User Deliverables
 
-- Registration via Mobile OTP, Google, and Apple.
+- Registration via Mobile OTP, Google.
 - User profile: current location, hometown, age/age group, occupation, gender, interests, and language preference.
 - English-only personalized morning brief.
 - Personalized updates from current location, hometown, India, and selected interests.

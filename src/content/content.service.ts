@@ -50,6 +50,7 @@ export class ContentService {
 
     const where: Prisma.ContentItemWhereInput = {
       status,
+      canonicalContentId: null,
       ...(types && { type: { in: types } }),
       ...(query.language && { language: query.language }),
       ...(categoryIds && { categoryId: { in: categoryIds } }),
