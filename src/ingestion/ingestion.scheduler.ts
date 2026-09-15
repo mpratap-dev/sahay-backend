@@ -8,7 +8,7 @@ export class IngestionScheduler {
 
   constructor(private readonly ingestionQueueService: IngestionQueueService) {}
 
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  @Cron(CronExpression.EVERY_HOUR)
   async scheduleIngestion(): Promise<void> {
     const count = await this.ingestionQueueService.enqueueActiveSources();
     this.logger.log({ msg: 'Scheduled ingestion jobs', jobCount: count });

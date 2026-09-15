@@ -26,6 +26,7 @@ describe('AuthService', () => {
       findUnique: jest.Mock;
       findUniqueOrThrow: jest.Mock;
       create: jest.Mock;
+      update: jest.Mock;
     };
   };
   let googleVerifier: { verify: jest.Mock };
@@ -36,6 +37,8 @@ describe('AuthService', () => {
     id: 'user-1',
     phone: null,
     email: 'a@example.com',
+    name: null,
+    imageUrl: null,
     identities: [
       {
         provider: AuthProvider.EMAIL,
@@ -51,6 +54,7 @@ describe('AuthService', () => {
         findUnique: jest.fn(),
         findUniqueOrThrow: jest.fn().mockResolvedValue(userRow),
         create: jest.fn(),
+        update: jest.fn(),
       },
     };
     googleVerifier = { verify: jest.fn() };
@@ -86,29 +90,50 @@ describe('AuthService', () => {
       subject: 'sub-1',
       email: 'a@example.com',
       emailVerified: true,
+      name: 'Jane Doe',
+      imageUrl: 'https://lh3.googleusercontent.com/photo.jpg',
     });
     prisma.authIdentity.findUnique.mockResolvedValue(null);
     prisma.user.findUnique.mockResolvedValue(null);
     prisma.user.create.mockResolvedValue({ id: 'user-1' });
 
     const result = await service.oauth('google', 'id-token');
-    expect(prisma.user.create).toHaveBeenCalled();
+    expect(prisma.user.create).toHaveBeenCalledWith({
+      data: {
+        email: 'a@example.com',
+        name: 'Jane Doe',
+        imageUrl: 'https://lh3.googleusercontent.com/photo.jpg',
+        identities: {
+          create: {
+            provider: 'GOOGLE',
+            providerSubject: 'sub-1',
+          },
+        },
+      },
+    });
     expect(result.accessToken).toBe('a');
     expect(result.user.email).toBe('a@example.com');
+    expect(result.user.name).toBeNull();
+    expect(result.user.imageUrl).toBeNull();
   });
 
-  it('links Google to an existing email user', async () => {
+  it('links Google to an existing email user and backfills profile fields', async () => {
     googleVerifier.verify.mockResolvedValue({
       provider: 'GOOGLE',
       subject: 'sub-2',
       email: 'a@example.com',
       emailVerified: true,
+      name: 'Jane Doe',
+      imageUrl: 'https://lh3.googleusercontent.com/photo.jpg',
     });
     prisma.authIdentity.findUnique.mockResolvedValue(null);
     prisma.user.findUnique.mockResolvedValue({
       id: 'user-1',
       email: 'a@example.com',
     });
+    prisma.user.findUniqueOrThrow
+      .mockResolvedValueOnce({ name: null, imageUrl: null })
+      .mockResolvedValueOnce(userRow);
 
     await service.oauth('google', 'id-token');
     expect(prisma.authIdentity.create).toHaveBeenCalledWith({
@@ -116,6 +141,13 @@ describe('AuthService', () => {
         userId: 'user-1',
         provider: 'GOOGLE',
         providerSubject: 'sub-2',
+      },
+    });
+    expect(prisma.user.update).toHaveBeenCalledWith({
+      where: { id: 'user-1' },
+      data: {
+        name: 'Jane Doe',
+        imageUrl: 'https://lh3.googleusercontent.com/photo.jpg',
       },
     });
     expect(prisma.user.create).not.toHaveBeenCalled();

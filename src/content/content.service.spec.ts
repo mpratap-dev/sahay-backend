@@ -61,6 +61,7 @@ describe('ContentService', () => {
       expect.objectContaining({
         where: expect.objectContaining({
           status: ContentStatus.PUBLISHED,
+          canonicalContentId: null,
         }) as Prisma.ContentItemWhereInput,
         take: 21,
       }),

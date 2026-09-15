@@ -78,14 +78,16 @@ model User {
   id        String   @id @default(cuid())
   phone     String?  @unique
   email     String?  @unique
+  name      String?
+  imageUrl  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  identities     AuthIdentity[]
-  refreshTokens  RefreshToken[]
-  locations      UserLocation[]
-  interestAreas  UserInterestArea[]
-  interests      UserInterest[]
+  identities    AuthIdentity[]
+  refreshTokens RefreshToken[]
+  locations     UserLocation[]
+  interestAreas UserInterestArea[]
+  interests     UserInterest[]
 }
 
 model UserLocation {
@@ -97,11 +99,19 @@ model UserLocation {
   latitude  Decimal
   longitude Decimal
 
-  locality     String?
-  adminArea    String?
-  countryCode  String?
-  postalCode   String?
-  placeId      String?
+  premise                  String?
+  neighborhood             String?
+  sublocalityLevel3        String?
+  sublocalityLevel2        String?
+  sublocalityLevel1        String?
+  locality                 String?
+  administrativeAreaLevel3 String?
+  administrativeAreaLevel2 String?
+  administrativeAreaLevel1 String?
+  country                  String?
+  countryCode              String?
+  postalCode               String?
+  placeId                  String?
 
   capturedAt DateTime @default(now())
   createdAt  DateTime @default(now())
@@ -250,12 +260,12 @@ model Topic {
 }
 
 model ArticleTopic {
-  id        String             @id @default(cuid())
-  articleId String
-  article   Article            @relation(fields: [articleId], references: [id], onDelete: Cascade)
-  topicId   String
-  topic     Topic              @relation(fields: [topicId], references: [id], onDelete: Cascade)
-  source    ArticleTopicSource @default(FEED_CATEGORY)
+  id         String             @id @default(cuid())
+  articleId  String
+  article    Article            @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  topicId    String
+  topic      Topic              @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  source     ArticleTopicSource @default(FEED_CATEGORY)
   confidence Float?
 
   createdAt DateTime @default(now())
@@ -286,9 +296,9 @@ model RawArticle {
 }
 
 model ContentItem {
-  id       String        @id @default(cuid())
-  type     ContentType   @default(NEWS_ARTICLE)
-  status   ContentStatus @default(PUBLISHED)
+  id     String        @id @default(cuid())
+  type   ContentType   @default(NEWS_ARTICLE)
+  status ContentStatus @default(PUBLISHED)
 
   title   String
   summary String?

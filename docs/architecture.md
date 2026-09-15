@@ -132,7 +132,7 @@ SAHAY answers:
 
 Potential signals include:
 
-- Current location and hometown (MVP: max **2** places via `UserLocation` with kinds `CURRENT` | `HOMETOWN`). V1 writes **current device location only** (`latitude` / `longitude` required; optional OS placemark: `locality`, `adminArea`, `countryCode`, `postalCode`). `placeId` is reserved for later civic geo. `HOMETOWN` exists on the enum but has no write API yet.
+- Current location and hometown (MVP: max **2** places via `UserLocation` with kinds `CURRENT` | `HOMETOWN`). V1 write is **current device lat/long only** (`PUT /me/location`); the server reverse-geocodes and stores Google `results[0]` address components as columns (`premise`, `neighborhood`, `sublocalityLevel1–3`, `locality`, `administrativeAreaLevel1–3`, `country` from `long_name`, `countryCode` from country `short_name`, `postalCode`) plus `placeId`. The same row is the later profile-edit target; V1 does not accept client-supplied geocode fields. `HOMETOWN` exists on the enum but has no write API yet.
 - Later (pro): up to **5** saved places (work, family, etc.) on the same `UserLocation` table — product cap, not a schema rewrite.
 - Age or age group.
 - Occupation (maps to `Topic`s later via `OccupationTopic`, not article tags).

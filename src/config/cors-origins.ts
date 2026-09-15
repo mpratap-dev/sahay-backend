@@ -11,7 +11,7 @@ export function parseCorsOrigins(raw: string | undefined): string[] {
     if (/^\d+$/.test(value)) {
       return [`http://localhost:${value}`];
     }
-    if (value.startsWith(':') && /^\:\d+$/.test(value)) {
+
     if (value.startsWith(':') && /^:\d+$/.test(value)) {
       return [`http://localhost${value}`];
     }
