@@ -58,6 +58,16 @@ export class ContentQueryDto {
   category?: string[];
 
   @IsOptional()
+  @Transform(({ value }) => parseCommaSeparated(value))
+  @IsString({ each: true })
+  topic?: string[];
+
+  @IsOptional()
+  @Transform(({ value }) => parseCommaSeparated(value))
+  @IsString({ each: true })
+  mentions?: string[];
+
+  @IsOptional()
   @IsString()
   language?: string;
 

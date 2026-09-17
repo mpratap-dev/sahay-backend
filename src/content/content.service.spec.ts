@@ -17,14 +17,20 @@ describe('ContentService', () => {
     findMany: jest.fn(),
   };
 
+  const topic = {
+    findMany: jest.fn(),
+  };
+
   const prisma = {
     contentItem,
     newsCategory,
+    topic,
   };
 
   beforeEach(async () => {
     jest.clearAllMocks();
     newsCategory.findMany.mockResolvedValue([{ id: 'cat-1', slug: 'delhi' }]);
+    topic.findMany.mockResolvedValue([{ id: 'topic-1', slug: 'politics' }]);
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [ContentService, { provide: PrismaService, useValue: prisma }],
@@ -117,5 +123,56 @@ describe('ContentService', () => {
     await expect(
       service.findAll({ category: ['missing'] }),
     ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('filters content by topic slug', async () => {
+    contentItem.findMany.mockResolvedValue([]);
+
+    await service.findAll({ topic: ['politics'] });
+
+    expect(contentItem.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          article: {
+            articleTopics: {
+              some: { topicId: { in: ['topic-1'] } },
+            },
+          },
+        }) as Prisma.ContentItemWhereInput,
+      }),
+    );
+  });
+
+  it('rejects unknown topics', async () => {
+    await expect(
+      service.findAll({ topic: ['missing'] }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('filters content by place name mentions in title or summary', async () => {
+    contentItem.findMany.mockResolvedValue([]);
+
+    await service.findAll({ mentions: ['Uttam Nagar', 'New Delhi'] });
+
+    expect(contentItem.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          OR: [
+            {
+              OR: [
+                { title: { contains: 'Uttam Nagar', mode: 'insensitive' } },
+                { summary: { contains: 'Uttam Nagar', mode: 'insensitive' } },
+              ],
+            },
+            {
+              OR: [
+                { title: { contains: 'New Delhi', mode: 'insensitive' } },
+                { summary: { contains: 'New Delhi', mode: 'insensitive' } },
+              ],
+            },
+          ],
+        }) as Prisma.ContentItemWhereInput,
+      }),
+    );
   });
 });

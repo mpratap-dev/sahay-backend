@@ -23,6 +23,10 @@ export class ContentService {
     Map<string, { id: string; slug: string }>
   >();
 
+  private readonly topicCache = new ReferenceCache<
+    Map<string, { id: string; slug: string }>
+  >();
+
   constructor(private readonly prisma: PrismaService) {}
 
   async findAll(query: ContentQueryDto): Promise<ContentListResponseDto> {
@@ -45,15 +49,42 @@ export class ContentService {
     }
 
     const categoryIds = await this.resolveCategoryIds(query.category);
+    const topicIds = await this.resolveTopicIds(query.topic);
+    const mentions = query.mentions?.length ? query.mentions : undefined;
     const types = query.type?.length ? query.type : undefined;
     const includeArticle = !types || types.includes(ContentType.NEWS_ARTICLE);
+
+    if (query.topic?.length && topicIds?.length === 0) {
+      return { items: [], nextCursor: null };
+    }
+
+    if (mentions?.length === 0) {
+      return { items: [], nextCursor: null };
+    }
 
     const where: Prisma.ContentItemWhereInput = {
       status,
       canonicalContentId: null,
+      summary: { not: null },
       ...(types && { type: { in: types } }),
       ...(query.language && { language: query.language }),
       ...(categoryIds && { categoryId: { in: categoryIds } }),
+      ...(topicIds?.length && {
+        article: {
+          articleTopics: {
+            some: { topicId: { in: topicIds } },
+          },
+        },
+      }),
+      ...(mentions?.length && {
+        OR: mentions.map((mention) => ({
+          OR: [
+            { title: { contains: mention, mode: 'insensitive' } },
+            { summary: { contains: mention, mode: 'insensitive' } },
+          ],
+        })),
+      }),
+
       ...(cursor && {
         OR: descending
           ? [
@@ -184,6 +215,57 @@ export class ContentService {
     }
 
     this.categoryCache.set(lookup);
+    return lookup;
+  }
+
+  private async resolveTopicIds(
+    topics: string[] | undefined,
+  ): Promise<string[] | undefined> {
+    if (!topics?.length) {
+      return undefined;
+    }
+
+    const lookup = await this.getTopicLookup();
+    const ids = new Set<string>();
+
+    for (const value of topics) {
+      const byId = lookup.get(`id:${value}`);
+      if (byId) {
+        ids.add(byId.id);
+        continue;
+      }
+
+      const bySlug = lookup.get(`slug:${value}`);
+      if (bySlug) {
+        ids.add(bySlug.id);
+        continue;
+      }
+
+      throw new BadRequestException(`Unknown topic: ${value}`);
+    }
+
+    return [...ids];
+  }
+
+  private async getTopicLookup(): Promise<
+    Map<string, { id: string; slug: string }>
+  > {
+    const cached = this.topicCache.get();
+    if (cached) {
+      return cached;
+    }
+
+    const topics = await this.prisma.topic.findMany({
+      select: { id: true, slug: true },
+    });
+
+    const lookup = new Map<string, { id: string; slug: string }>();
+    for (const topic of topics) {
+      lookup.set(`id:${topic.id}`, topic);
+      lookup.set(`slug:${topic.slug}`, topic);
+    }
+
+    this.topicCache.set(lookup);
     return lookup;
   }
 }

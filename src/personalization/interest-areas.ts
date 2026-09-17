@@ -11,7 +11,7 @@ export const INTEREST_AREA_LABELS: Record<InterestArea, string> = {
     'Education, Healthcare, Media & Lifestyle',
 };
 
-/** Deterministic prior for later AI curation. Not auto-followed. */
+/** V1: auto-followed via `replaceInterestAreas`; later AI curation may refine. */
 export const INTEREST_AREA_TOPIC_SLUGS: Record<
   InterestArea,
   readonly string[]

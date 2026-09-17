@@ -6,12 +6,23 @@ import {
   ArrayUnique,
   IsArray,
   IsEnum,
+  IsInt,
   IsLatitude,
   IsLongitude,
   IsOptional,
   IsString,
+  Max,
+  Min,
+  ValidateIf,
 } from 'class-validator';
+import { ContentListResponseDto } from '../../content/dto/content-response.dto';
 import { InterestArea, LocationKind } from '../../generated/prisma/enums';
+
+export enum FeedFilter {
+  ALL = 'all',
+  NEARBY = 'nearby',
+  TOPIC = 'topic',
+}
 
 export class TopicViewDto {
   @ApiProperty()
@@ -137,6 +148,34 @@ export class ReplaceInterestAreasDto {
   @IsEnum(InterestArea, { each: true })
   areas!: InterestArea[];
 }
+
+export class FeedQueryDto {
+  @ApiProperty({ enum: FeedFilter })
+  @IsEnum(FeedFilter)
+  filter!: FeedFilter;
+
+  @ApiPropertyOptional({
+    description: 'Topic id or slug; required when filter is topic',
+  })
+  @ValidateIf((dto: FeedQueryDto) => dto.filter === FeedFilter.TOPIC)
+  @IsString()
+  topic?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  cursor?: string;
+
+  @ApiPropertyOptional({ default: 20 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(50)
+  limit?: number = 20;
+}
+
+export { ContentListResponseDto as FeedResponseDto };
 
 export class PatchTopicsDto {
   @ApiPropertyOptional({ type: [String], example: ['politics', 'sports'] })
