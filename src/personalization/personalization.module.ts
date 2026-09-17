@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
+import { ContentModule } from '../content/content.module';
 import { GoogleGeocodeClient } from './google-geocode.client';
 import { MeController } from './me.controller';
 import { PersonalizationService } from './personalization.service';
 import { InterestAreasController, TopicsController } from './topics.controller';
 
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, ContentModule],
   controllers: [TopicsController, InterestAreasController, MeController],
   providers: [PersonalizationService, GoogleGeocodeClient],
 })

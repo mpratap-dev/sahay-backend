@@ -1,5 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { ContentService } from '../content/content.service';
 import {
   InterestArea,
   LocationKind,
@@ -7,6 +8,7 @@ import {
   UserInterestStatus,
 } from '../generated/prisma/enums';
 import { PrismaService } from '../prisma/prisma.service';
+import { FeedFilter } from './dto/personalization.dto';
 import { GoogleGeocodeClient } from './google-geocode.client';
 import { PersonalizationService } from './personalization.service';
 
@@ -28,7 +30,9 @@ describe('PersonalizationService', () => {
   };
   const userInterest = {
     findMany: jest.fn(),
+    findUnique: jest.fn(),
     upsert: jest.fn(),
+    deleteMany: jest.fn(),
   };
   const interestAreaTopic = {
     findMany: jest.fn(),
@@ -46,6 +50,10 @@ describe('PersonalizationService', () => {
     reverseGeocode: jest.fn(),
   };
 
+  const contentService = {
+    findAll: jest.fn(),
+  };
+
   const politics = { id: 't-pol', slug: 'politics', name: 'Politics' };
   const sports = { id: 't-spo', slug: 'sports', name: 'Sports' };
   const science = { id: 't-sci', slug: 'science', name: 'Science' };
@@ -61,10 +69,87 @@ describe('PersonalizationService', () => {
         PersonalizationService,
         { provide: PrismaService, useValue: prisma },
         { provide: GoogleGeocodeClient, useValue: googleGeocode },
+        { provide: ContentService, useValue: contentService },
       ],
     }).compile();
 
     service = module.get(PersonalizationService);
+  });
+
+  describe('getFeed', () => {
+    it('returns empty feed when user follows no topics for filter=all', async () => {
+      userInterest.findMany.mockResolvedValue([]);
+
+      const result = await service.getFeed('user-1', {
+        filter: FeedFilter.ALL,
+      });
+
+      expect(result).toEqual({ items: [], nextCursor: null });
+      expect(contentService.findAll).not.toHaveBeenCalled();
+    });
+
+    it('delegates filter=all to content service with followed topic ids', async () => {
+      userInterest.findMany.mockResolvedValue([
+        { topicId: politics.id },
+        { topicId: sports.id },
+      ]);
+      contentService.findAll.mockResolvedValue({ items: [], nextCursor: null });
+
+      await service.getFeed('user-1', { filter: FeedFilter.ALL, limit: 10 });
+
+      expect(contentService.findAll).toHaveBeenCalledWith({
+        topic: [politics.id, sports.id],
+        cursor: undefined,
+        limit: 10,
+      });
+    });
+
+    it('throws when filter=nearby and user has no location', async () => {
+      userLocation.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.getFeed('user-1', { filter: FeedFilter.NEARBY }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+    });
+
+    it('delegates filter=nearby with place names from stored location', async () => {
+      userLocation.findUnique.mockResolvedValue({
+        kind: LocationKind.CURRENT,
+        latitude: 28.6,
+        longitude: 77.2,
+        ...emptyAddressFields(),
+        sublocalityLevel2: 'Uttam Nagar',
+        locality: 'New Delhi',
+        administrativeAreaLevel1: 'Delhi',
+        countryCode: 'IN',
+        capturedAt: new Date('2026-09-08T10:00:00Z'),
+      });
+      contentService.findAll.mockResolvedValue({ items: [], nextCursor: null });
+
+      await service.getFeed('user-1', { filter: FeedFilter.NEARBY });
+
+      expect(contentService.findAll).toHaveBeenCalledWith({
+        topic: undefined,
+        mentions: ['Uttam Nagar', 'New Delhi', 'Delhi'],
+        cursor: undefined,
+        limit: undefined,
+      });
+    });
+
+    it('delegates filter=topic to content service with topic param', async () => {
+      contentService.findAll.mockResolvedValue({ items: [], nextCursor: null });
+
+      await service.getFeed('user-1', {
+        filter: FeedFilter.TOPIC,
+        topic: politics.id,
+      });
+
+      expect(contentService.findAll).toHaveBeenCalledWith({
+        topic: [politics.id],
+        cursor: undefined,
+        limit: undefined,
+      });
+    });
   });
 
   describe('listTopics', () => {
@@ -172,6 +257,8 @@ describe('PersonalizationService', () => {
     it('replaces the full set in a transaction', async () => {
       userInterestArea.deleteMany.mockResolvedValue({ count: 1 });
       userInterestArea.createMany.mockResolvedValue({ count: 2 });
+      interestAreaTopic.findMany.mockResolvedValue([]);
+      userInterest.deleteMany.mockResolvedValue({ count: 0 });
 
       const result = await service.replaceInterestAreas('user-1', {
         areas: [
@@ -199,6 +286,97 @@ describe('PersonalizationService', () => {
           },
         ],
       });
+    });
+
+    it('creates ONBOARDING follows for topics mapped to selected areas', async () => {
+      userInterestArea.deleteMany.mockResolvedValue({ count: 0 });
+      userInterestArea.createMany.mockResolvedValue({ count: 1 });
+      interestAreaTopic.findMany.mockResolvedValue([
+        { topicId: science.id },
+        { topicId: politics.id },
+      ]);
+      userInterest.deleteMany.mockResolvedValue({ count: 0 });
+      userInterest.findUnique.mockResolvedValue(null);
+      userInterest.upsert.mockResolvedValue({});
+
+      await service.replaceInterestAreas('user-1', {
+        areas: [InterestArea.TECHNOLOGY_SCIENCE_ENGINEERING],
+      });
+
+      expect(interestAreaTopic.findMany).toHaveBeenCalledWith({
+        where: {
+          area: { in: [InterestArea.TECHNOLOGY_SCIENCE_ENGINEERING] },
+        },
+        select: { topicId: true },
+      });
+      expect(userInterest.upsert).toHaveBeenCalledTimes(2);
+      expect(userInterest.upsert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { userId_topicId: { userId: 'user-1', topicId: science.id } },
+          create: {
+            userId: 'user-1',
+            topicId: science.id,
+            status: UserInterestStatus.FOLLOWED,
+            source: UserInterestSource.ONBOARDING,
+          },
+        }),
+      );
+    });
+
+    it('deletes stale ONBOARDING follows when an area is removed on re-save', async () => {
+      userInterestArea.deleteMany.mockResolvedValue({ count: 1 });
+      userInterestArea.createMany.mockResolvedValue({ count: 1 });
+      interestAreaTopic.findMany.mockResolvedValue([{ topicId: science.id }]);
+      userInterest.deleteMany.mockResolvedValue({ count: 1 });
+      userInterest.findUnique.mockResolvedValue(null);
+      userInterest.upsert.mockResolvedValue({});
+
+      await service.replaceInterestAreas('user-1', {
+        areas: [InterestArea.TECHNOLOGY_SCIENCE_ENGINEERING],
+      });
+
+      expect(userInterest.deleteMany).toHaveBeenCalledWith({
+        where: {
+          userId: 'user-1',
+          source: UserInterestSource.ONBOARDING,
+          status: UserInterestStatus.FOLLOWED,
+          topicId: { notIn: [science.id] },
+        },
+      });
+    });
+
+    it('does not override EXCLUDED rows', async () => {
+      userInterestArea.deleteMany.mockResolvedValue({ count: 0 });
+      userInterestArea.createMany.mockResolvedValue({ count: 1 });
+      interestAreaTopic.findMany.mockResolvedValue([{ topicId: science.id }]);
+      userInterest.deleteMany.mockResolvedValue({ count: 0 });
+      userInterest.findUnique.mockResolvedValue({
+        status: UserInterestStatus.EXCLUDED,
+        source: UserInterestSource.MANUAL,
+      });
+
+      await service.replaceInterestAreas('user-1', {
+        areas: [InterestArea.TECHNOLOGY_SCIENCE_ENGINEERING],
+      });
+
+      expect(userInterest.upsert).not.toHaveBeenCalled();
+    });
+
+    it('does not change MANUAL FOLLOWED rows', async () => {
+      userInterestArea.deleteMany.mockResolvedValue({ count: 0 });
+      userInterestArea.createMany.mockResolvedValue({ count: 1 });
+      interestAreaTopic.findMany.mockResolvedValue([{ topicId: sports.id }]);
+      userInterest.deleteMany.mockResolvedValue({ count: 0 });
+      userInterest.findUnique.mockResolvedValue({
+        status: UserInterestStatus.FOLLOWED,
+        source: UserInterestSource.MANUAL,
+      });
+
+      await service.replaceInterestAreas('user-1', {
+        areas: [InterestArea.TECHNOLOGY_SCIENCE_ENGINEERING],
+      });
+
+      expect(userInterest.upsert).not.toHaveBeenCalled();
     });
   });
 

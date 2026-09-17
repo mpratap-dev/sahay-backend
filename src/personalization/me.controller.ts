@@ -1,9 +1,11 @@
-import { Body, Controller, Get, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Put, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { CurrentUserId } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { InterestArea } from '../generated/prisma/enums';
 import {
+  FeedQueryDto,
+  FeedResponseDto,
   LocationViewDto,
   PatchTopicsDto,
   PersonalizationResponseDto,
@@ -44,6 +46,15 @@ export class MeController {
     @Body() body: ReplaceInterestAreasDto,
   ): Promise<{ interestAreas: InterestArea[] }> {
     return this.personalization.replaceInterestAreas(userId, body);
+  }
+
+  @Get('feed')
+  @ApiOkResponse({ type: FeedResponseDto })
+  getFeed(
+    @CurrentUserId() userId: string,
+    @Query() query: FeedQueryDto,
+  ): Promise<FeedResponseDto> {
+    return this.personalization.getFeed(userId, query);
   }
 
   @Get('topics')

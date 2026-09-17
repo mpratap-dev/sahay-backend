@@ -1,4 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { ContentService } from '../content/content.service';
+import { ContentListResponseDto } from '../content/dto/content-response.dto';
 import { Prisma } from '../generated/prisma/client';
 import {
   InterestArea,
@@ -8,6 +10,8 @@ import {
 } from '../generated/prisma/enums';
 import { PrismaService } from '../prisma/prisma.service';
 import {
+  FeedFilter,
+  FeedQueryDto,
   InterestAreaViewDto,
   LocationViewDto,
   PatchTopicsDto,
@@ -17,6 +21,7 @@ import {
   TopicViewDto,
   UpsertLocationDto,
 } from './dto/personalization.dto';
+import { placeNamesFromLocation } from './location-place-names';
 import { GoogleGeocodeClient } from './google-geocode.client';
 import type { CurrentLocationFields } from './google-geocode.types';
 import { INTEREST_AREA_LABELS } from './interest-areas';
@@ -24,11 +29,17 @@ import { mapGeocodeResult } from './map-address-components';
 
 type TopicRow = { id: string; slug: string; name: string };
 
+type PersonalizationTransactionClient = Pick<
+  PrismaService,
+  'interestAreaTopic' | 'userInterest'
+>;
+
 @Injectable()
 export class PersonalizationService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly googleGeocode: GoogleGeocodeClient,
+    private readonly contentService: ContentService,
   ) {}
 
   async listTopics(): Promise<TopicViewDto[]> {
@@ -141,8 +152,117 @@ export class PersonalizationService {
       await tx.userInterestArea.createMany({
         data: areas.map((area) => ({ userId, area })),
       });
+      await this.syncTopicsFromInterestAreas(tx, userId, areas);
     });
     return { interestAreas: areas };
+  }
+
+  private async syncTopicsFromInterestAreas(
+    tx: PersonalizationTransactionClient,
+    userId: string,
+    areas: InterestArea[],
+  ): Promise<void> {
+    // Resolve catalogue topics implied by the user's current area selection.
+    const mappings = await tx.interestAreaTopic.findMany({
+      where: { area: { in: areas } },
+      select: { topicId: true },
+    });
+    const topicIds = [...new Set(mappings.map((row) => row.topicId))];
+
+    // Drop ONBOARDING follows from a previous area set; keep MANUAL and EXCLUDED rows.
+    await tx.userInterest.deleteMany({
+      where: {
+        userId,
+        source: UserInterestSource.ONBOARDING,
+        status: UserInterestStatus.FOLLOWED,
+        ...(topicIds.length > 0 ? { topicId: { notIn: topicIds } } : {}),
+      },
+    });
+
+    for (const topicId of topicIds) {
+      const existing = await tx.userInterest.findUnique({
+        where: { userId_topicId: { userId, topicId } },
+        select: { status: true, source: true },
+      });
+
+      // User explicitly unfollowed — do not re-follow on area re-save.
+      if (existing?.status === UserInterestStatus.EXCLUDED) {
+        continue;
+      }
+      // User chose this topic themselves — do not overwrite source or status.
+      if (
+        existing?.status === UserInterestStatus.FOLLOWED &&
+        existing.source === UserInterestSource.MANUAL
+      ) {
+        continue;
+      }
+
+      // Ensure each mapped topic has an ONBOARDING follow unless overridden above.
+      await tx.userInterest.upsert({
+        where: { userId_topicId: { userId, topicId } },
+        create: {
+          userId,
+          topicId,
+          status: UserInterestStatus.FOLLOWED,
+          source: UserInterestSource.ONBOARDING,
+        },
+        update: {
+          status: UserInterestStatus.FOLLOWED,
+          source: UserInterestSource.ONBOARDING,
+        },
+      });
+    }
+  }
+
+  async getFeed(
+    userId: string,
+    query: FeedQueryDto,
+  ): Promise<ContentListResponseDto> {
+    let topicValues: string[] | undefined;
+    let mentionValues: string[] | undefined;
+
+    switch (query.filter) {
+      case FeedFilter.ALL: {
+        const rows = await this.prisma.userInterest.findMany({
+          where: { userId, status: UserInterestStatus.FOLLOWED },
+          select: { topicId: true },
+        });
+        if (rows.length === 0) {
+          return { items: [], nextCursor: null };
+        }
+        topicValues = rows.map((row) => row.topicId);
+        break;
+      }
+      case FeedFilter.NEARBY: {
+        const location = await this.findCurrentLocation(userId);
+        if (!location) {
+          throw new BadRequestException('Location required for nearby feed');
+        }
+        const placeNames = placeNamesFromLocation(location);
+        if (placeNames.length === 0) {
+          return { items: [], nextCursor: null };
+        }
+        mentionValues = placeNames;
+        break;
+      }
+      case FeedFilter.TOPIC: {
+        const topic = query.topic?.trim();
+        if (!topic) {
+          throw new BadRequestException(
+            'topic is required when filter is topic',
+          );
+        }
+        topicValues = [topic];
+        break;
+      }
+    }
+
+    return this.contentService.findAll({
+      topic: topicValues,
+      mentions: mentionValues,
+      cursor: query.cursor,
+      limit: query.limit,
+    });
   }
 
   async getTopicPreferences(userId: string): Promise<TopicPreferencesDto> {

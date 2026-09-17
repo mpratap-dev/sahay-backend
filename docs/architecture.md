@@ -137,8 +137,8 @@ Potential signals include:
 - Age or age group.
 - Occupation (maps to `Topic`s later via `OccupationTopic`, not article tags).
 - Constituency (derive from a location slot when civic geo exists).
-- **Onboarding interest areas** (`UserInterestArea` → `InterestArea` enum). These four buckets are **signals for later topic recommendation**, not the user's topics: Technology/Science/Engineering; Business/Finance/Entrepreneurship; Law/Government/Public Services; Education/Healthcare/Media/Lifestyle. `InterestAreaTopic` is a seeded prior from area → catalogue `Topic` slugs. Do not auto-follow those topics.
-- Followed topics (`UserInterest` → `Topic`) with status `FOLLOWED` | `EXCLUDED`. Bulk `PUT /me/topics` patches by slug (`followed` / `unfollowed`); unfollow stores `EXCLUDED` as a negative signal (row is not deleted). AI curation of recommended topics is later.
+- **Onboarding interest areas** (`UserInterestArea` → `InterestArea` enum). Four coarse buckets: Technology/Science/Engineering; Business/Finance/Entrepreneurship; Law/Government/Public Services; Education/Healthcare/Media/Lifestyle. `InterestAreaTopic` is a seeded prior from area → catalogue `Topic` slugs. **V1:** `PUT /me/interest-areas` also upserts `UserInterest` rows with `status=FOLLOWED` and `source=ONBOARDING` for mapped topics. Topics with `source=MANUAL` or `status=EXCLUDED` are never overwritten by area re-sync; stale `ONBOARDING` follows are removed when an area is deselected.
+- Followed topics (`UserInterest` → `Topic`) with status `FOLLOWED` | `EXCLUDED`. Bulk `PUT /me/topics` patches by slug (`followed` / `unfollowed`); unfollow stores `EXCLUDED` as a negative signal (row is not deleted). Topics with no row are neutral (neither followed nor excluded). AI curation of recommended topics is later.
 - Completeness for onboarding: `GET /me/personalization` reports `hasLocation`, `hasInterestAreas`, `hasFollowedTopics` from stored rows.
 - Previous interactions.
 - Issues reported by the user.
