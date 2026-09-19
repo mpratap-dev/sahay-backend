@@ -3,6 +3,7 @@ import { ArticleTopicSource } from '../generated/prisma/enums';
 import { PrismaService } from '../prisma/prisma.service';
 import { ArticleDedupService } from './article-dedup.service';
 import {
+  extractImageUrlFromHtml,
   extractNormalizedFields,
   isValidUrl,
   resolvePublishedAt,
@@ -214,6 +215,17 @@ export class NormalizationService {
     } else if (mediaThumbnail && typeof mediaThumbnail.url === 'string') {
       const url = mediaThumbnail.url.trim();
       if (isValidUrl(url)) return url;
+    }
+
+    for (const field of [
+      payload.description,
+      payload['content:encoded'],
+      payload.content,
+    ]) {
+      if (typeof field === 'string') {
+        const url = extractImageUrlFromHtml(field);
+        if (url) return url;
+      }
     }
 
     return null;
