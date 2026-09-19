@@ -13,6 +13,18 @@ export function cleanDisplayText(value: string): string {
   return decoded.replace(/\s+/g, ' ').trim();
 }
 
+const IMG_SRC_PATTERN = /<img[^>]+src=["']([^"']+)["']/i;
+
+export function extractImageUrlFromHtml(html: string): string | null {
+  const match = IMG_SRC_PATTERN.exec(html);
+  if (!match) return null;
+
+  const url = match[1].trim();
+  if (!isValidUrl(url)) return null;
+
+  return url;
+}
+
 export function resolvePublishedAt(parsed: Date | null, fetchedAt: Date): Date {
   return parsed ?? fetchedAt;
 }

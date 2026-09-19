@@ -1,9 +1,37 @@
 import {
   cleanDisplayText,
+  extractImageUrlFromHtml,
   extractNormalizedFields,
   parsePublishedAt,
   resolvePublishedAt,
 } from './normalize-payload';
+
+describe('extractImageUrlFromHtml', () => {
+  const indiaTodayDescription =
+    '<a href="https://www.indiatoday.in/business/story/example">' +
+    '<img align="left" height="180" width="305" src="https://akm-img-a-in.tosshub.com/indiatoday/images/story/202609/example.png">' +
+    '</a> Tata Sons board approves reappointment';
+
+  it('extracts image URL from img src in HTML description', () => {
+    expect(extractImageUrlFromHtml(indiaTodayDescription)).toBe(
+      'https://akm-img-a-in.tosshub.com/indiatoday/images/story/202609/example.png',
+    );
+  });
+
+  it('returns null when HTML has no image', () => {
+    expect(extractImageUrlFromHtml('<p>Plain text only</p>')).toBeNull();
+  });
+
+  it('returns null for relative image src', () => {
+    expect(extractImageUrlFromHtml('<img src="/images/photo.jpg">')).toBeNull();
+  });
+
+  it('returns null for data URI image src', () => {
+    expect(
+      extractImageUrlFromHtml('<img src="data:image/png;base64,iVBORw0KGgo=">'),
+    ).toBeNull();
+  });
+});
 
 describe('cleanDisplayText', () => {
   it('strips HTML tags and collapses whitespace', () => {

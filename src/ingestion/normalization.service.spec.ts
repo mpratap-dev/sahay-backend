@@ -123,6 +123,48 @@ describe('NormalizationService', () => {
     expect(payload).not.toHaveProperty('imageUrl');
   });
 
+  it('extracts imageUrl from img tag in description (India Today)', () => {
+    const result = service.normalizePayload({
+      title: 'Tata Sons board approves reappointment',
+      link: 'https://www.indiatoday.in/business/story/example',
+      description:
+        '<a href="https://www.indiatoday.in/business/story/example">' +
+        '<img src="https://akm-img-a-in.tosshub.com/indiatoday/images/story/202609/example.png">' +
+        '</a> Tata Sons board approves reappointment',
+    });
+    expect(result.imageUrl).toBe(
+      'https://akm-img-a-in.tosshub.com/indiatoday/images/story/202609/example.png',
+    );
+  });
+
+  it('prefers enclosure over img in description', () => {
+    const result = service.normalizePayload({
+      title: 'T',
+      link: 'https://example.com/a',
+      enclosure: {
+        url: 'https://example.com/enclosure.jpg',
+        type: 'image/jpeg',
+      },
+      description:
+        '<img src="https://example.com/description.jpg"> Summary text',
+    });
+    expect(result.imageUrl).toBe('https://example.com/enclosure.jpg');
+  });
+
+  it('prefers media:content over img in description', () => {
+    const result = service.normalizePayload({
+      title: 'T',
+      link: 'https://example.com/a',
+      'media:content': {
+        url: 'https://example.com/media.jpg',
+        medium: 'image',
+      },
+      description:
+        '<img src="https://example.com/description.jpg"> Summary text',
+    });
+    expect(result.imageUrl).toBe('https://example.com/media.jpg');
+  });
+
   it('sets language and confidence from feed language', () => {
     const result = service.normalizePayload(
       {

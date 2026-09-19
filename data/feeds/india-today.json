@@ -1,0 +1,24 @@
+{
+  "name": "India Today",
+  "slug": "india-today",
+  "homepageUrl": "https://www.indiatoday.in",
+  "trustTier": 2,
+  "urls": [
+    "https://www.indiatoday.in/rss/home",
+    "https://www.indiatoday.in/rss/1206514",
+    "https://www.indiatoday.in/rss/1206551",
+    "https://www.indiatoday.in/rss/1206614",
+    "https://www.indiatoday.in/rss/1206509",
+    "https://www.indiatoday.in/rss/1206610",
+    "https://www.indiatoday.in/rss/1206494",
+    "https://www.indiatoday.in/rss/1206613",
+    "https://www.indiatoday.in/rss/1206584",
+    "https://www.indiatoday.in/rss/1206500",
+    "https://www.indiatoday.in/rss/1206513",
+    "https://www.indiatoday.in/rss/1206577",
+    "https://www.indiatoday.in/rss/1206550",
+    "https://www.indiatoday.in/rss/1206503",
+    "https://www.indiatoday.in/rss/1206504",
+    "https://www.indiatoday.in/rss/1206506"
+  ]
+}
